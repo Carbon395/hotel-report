@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.2</title>
+    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.4</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -66,18 +66,16 @@
         .btn-submit:hover { background: linear-gradient(135deg, var(--gov-orange), #c05621); }
         .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
         
-        /* ==========================================================================
-           核心優化：PDF 強制單頁不破版不裁切容器配置
-           ========================================================================== */
+        /* PDF 隱藏容器配置 */
         #pdf-wrapper {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
+            position: fixed;
+            left: 0;
+            top: 0;
             width: 794px;
             height: 1123px;
             overflow: hidden;
             z-index: -9999;
-            opacity: 0;
+            visibility: hidden;
         }
         #pdf-template { 
             width: 794px; 
@@ -88,7 +86,7 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* 確保內容垂直均勻分佈在單頁內 */
+            justify-content: space-between;
         }
         .pdf-header-zone { width: 100%; }
         .pdf-title { text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 20px; font-family: "Noto Sans TC", "微軟正黑體", sans-serif; letter-spacing: 1px; }
@@ -181,8 +179,9 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label required">原因與災情狀況補充</label>
-                                <input type="text" class="form-control" id="eventReasonRemark" placeholder="請針對上述分類補充" required>
+                                <!-- 修正點：移除必填標籤與 required 屬性 -->
+                                <label class="form-label">原因與災情狀況補充 (選填)</label>
+                                <input type="text" class="form-control" id="eventReasonRemark" placeholder="請針對上述分類補充（若無則免填）">
                             </div>
 
                             <div class="col-md-6">
@@ -234,6 +233,7 @@
     </div>
 </div>
 
+<!-- PDF 擷取範本區域 -->
 <div id="pdf-wrapper">
     <div id="pdf-template">
         <div class="pdf-header-zone">
@@ -310,14 +310,13 @@
 <footer class="gov-footer text-center">
     <div class="container">
         <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
-        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.2 • 強制單頁防裁切版</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.4 • 開放選填欄位</p>
     </div>
 </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // 1. 點擊鎖定目前時間功能
     const lnkSetTime = document.getElementById('lnkSetTime');
     const eventTimeInput = document.getElementById('eventTime');
     
@@ -332,13 +331,11 @@ document.addEventListener('DOMContentLoaded', function() {
         eventTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
     });
 
-    // 2. 表單提交與 PDF 轉換邏輯
     const reportForm = document.getElementById('reportForm');
     
     reportForm.addEventListener('submit', function(e) {
         e.preventDefault(); 
         
-        // 讀取表單欄位數值
         const hotelName = document.getElementById('hotelName').value;
         const district = document.getElementById('district').value;
         const reporterName = document.getElementById('reporterName').value;
@@ -347,13 +344,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const eventTime = document.getElementById('eventTime').value.replace('T', ' ');
         const eventLocation = document.getElementById('eventLocation').value;
         const eventReasonCategory = document.getElementById('eventReasonCategory').value;
-        const eventReasonRemark = document.getElementById('eventReasonRemark').value;
+        // 允許空值，若沒填寫則顯示空白或您可以自行設定如 "無"
+        const eventReasonRemark = document.getElementById('eventReasonRemark').value || ""; 
         const casualtyCategory = document.getElementById('casualtyCategory').value;
         const casualtyCountDetail = document.getElementById('casualtyCountDetail').value;
         const policeFireStatus = document.getElementById('policeFireStatus').value;
         const actionTaken = document.getElementById('actionTaken').value;
 
-        // 寫入公務 PDF 隱藏範本中
         document.getElementById('pdfHotelName').textContent = hotelName;
         document.getElementById('pdfDistrict').textContent = district;
         document.getElementById('pdfReporterName').textContent = reporterName;
@@ -368,36 +365,41 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('pdfPoliceFireStatus').textContent = policeFireStatus;
         document.getElementById('pdfActionTaken').textContent = actionTaken;
         
-        // 生成當前系統通報時間
         const currentNow = new Date();
         document.getElementById('pdfReportGeneratedTime').textContent = currentNow.toLocaleString('zh-TW', { hour12: false });
 
-        // 調用 html2pdf.js 擷取
+        const wrapper = document.getElementById('pdf-wrapper');
+        wrapper.style.visibility = 'visible';
+        wrapper.style.zIndex = '9999';
+
         const element = document.getElementById('pdf-template');
         
         const opt = {
             margin:       0, 
             filename:     `臺北市旅館通報單_${hotelName}_${district}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
-            pagebreak:    { mode: 'avoid' }, // 核心優化：嚴格禁止元件內部產生跨頁斷點
+            pagebreak:    { mode: 'avoid' }, 
             html2canvas:  { 
                 scale: 2, 
                 useCORS: true, 
                 letterRendering: true,
                 scrollY: 0,
                 scrollX: 0,
-                width: 794,       // A4 解析度寬度
-                height: 1123,     // A4 解析度長度
+                width: 794,       
+                height: 1123,     
                 windowWidth: 794  
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 執行下載
         html2pdf().set(opt).from(element).save().then(() => {
-            alert('通報單已下載');
+            wrapper.style.visibility = 'hidden';
+            wrapper.style.zIndex = '-9999';
+            alert('旅館通報單已下載');
         }).catch(err => {
             console.error('PDF 產生失敗：', err);
+            wrapper.style.visibility = 'hidden';
+            wrapper.style.zIndex = '-9999';
             alert('PDF 導出時發生錯誤，請重試。');
         });
     });
