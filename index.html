@@ -165,14 +165,14 @@
                                 <label class="form-label required">【10】119/110 通報單位</label>
                                 <select class="form-select" id="policeFireStatus" required>
                                     <option value="">-- 請選擇 --</option>
-                                    <option value="已通報消防局/警察局處理中">已通報消防局/警察局處理中</option>
-                                    <option value="警消人員現場處理中">警消人員現場處理中</option>
-                                    <option value="狀況解除/自行處置完成，評估無需通報警消">狀況控制，評估無需通報警消</option>
+                                    <option value="已通報消防局/警察局/醫療救護">已通報消防局/警察局/醫療救護</option>
+                                    <option value="警消醫護人員現場處理中">警消醫護人員現場處理中</option>
+                                    <option value="狀況解除/自行處置完成，評估無需通報警消醫護">狀況控制，評估無需通報警消醫護</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【11】處理進度</label>
-                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="請簡要說明：例如已拉起封鎖線、配合警方調查、封鎖現場、疏散旅客等。" required></textarea>
+                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="請簡要說明：例如已拉起封鎖線、配合警方調查、疏散旅客等。" required></textarea>
                             </div>
                         </div>
 
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <div class="footer-note">
         <strong>提示說明：</strong><br>
-        1. 依據旅館業管理規則第25條規定，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
+        1. 依旅館業管理規則第25條，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，旅館應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
         2. 請通報人務必確認填報內容真實無誤。
     </div>
 </body>
