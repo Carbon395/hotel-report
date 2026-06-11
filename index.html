@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.1</title>
+    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -67,7 +67,7 @@
         .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
         
         /* ==========================================================================
-           核心優化：PDF 完美單頁不裁切容器配置
+           核心優化：PDF 強制單頁不破版不裁切容器配置
            ========================================================================== */
         #pdf-wrapper {
             position: absolute;
@@ -83,16 +83,19 @@
             width: 794px; 
             height: 1123px;
             background: white; 
-            padding: 50px 45px; 
+            padding: 45px 50px; 
             color: black; 
             box-sizing: border-box;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* 確保內容垂直均勻分佈在單頁內 */
         }
-        .pdf-title { text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 25px; font-family: "Noto Sans TC", "微軟正黑體", sans-serif; letter-spacing: 1px; }
-        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 15px; background: #ffffff; table-layout: fixed; }
+        .pdf-header-zone { width: 100%; }
+        .pdf-title { text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 20px; font-family: "Noto Sans TC", "微軟正黑體", sans-serif; letter-spacing: 1px; }
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 0; font-size: 14px; background: #ffffff; table-layout: fixed; }
         .pdf-table th, .pdf-table td { border: 1px solid #000000; padding: 10px 12px; text-align: left; vertical-align: middle; box-sizing: border-box; word-wrap: break-word; }
         .pdf-table th { background-color: #f2f2f2; font-weight: bold; width: 22%; text-align: center; }
-        .pdf-footer { font-size: 13px; line-height: 1.6; margin-top: 30px; border-top: 1px dashed #666; padding-top: 15px; color: #333; }
+        .pdf-footer { font-size: 13px; line-height: 1.6; border-top: 1px dashed #666; padding-top: 12px; color: #333; margin-top: auto; }
     </style>
 </head>
 <body>
@@ -233,66 +236,68 @@
 
 <div id="pdf-wrapper">
     <div id="pdf-template">
-        <div class="pdf-title">臺北市旅館業緊急意外事故通報單</div>
-        <div style="text-align: right; margin-bottom: 12px; font-size: 14px; font-weight: 500;">
-            通報日期時間：<span id="pdfReportGeneratedTime"></span>
+        <div class="pdf-header-zone">
+            <div class="pdf-title">臺北市旅館業緊急意外事故通報單</div>
+            <div style="text-align: right; margin-bottom: 12px; font-size: 13px; font-weight: 500;">
+                通報日期時間：<span id="pdfReportGeneratedTime"></span>
+            </div>
+            
+            <table class="pdf-table">
+                <tr>
+                    <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 15px;">一、填報單位</th>
+                </tr>
+                <tr>
+                    <th>旅館名稱</th>
+                    <td id="pdfHotelName" style="width: 28%;"></td>
+                    <th>所屬行政區</th>
+                    <td id="pdfDistrict" style="width: 28%;"></td>
+                </tr>
+                <tr>
+                    <th>通報人員</th>
+                    <td id="pdfReporterName"></td>
+                    <th>職稱</th>
+                    <td id="pdfReporterTitle"></td>
+                </tr>
+                <tr>
+                    <th>聯絡方式</th>
+                    <td colspan="3" id="pdfReporterPhone"></td>
+                </tr>
+                
+                <tr>
+                    <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 15px;">二、現場狀況</th>
+                </tr>
+                <tr>
+                    <th>通報時間</th>
+                    <td id="pdfEventTime"></td>
+                    <th>事故地點</th>
+                    <td id="pdfEventLocation"></td>
+                </tr>
+                <tr>
+                    <th>發生原因</th>
+                    <td id="pdfEventReasonCategory"></td>
+                    <th>原因與災情補充</th>
+                    <td id="pdfEventReasonRemark"></td>
+                </tr>
+                <tr>
+                    <th>傷亡情形</th>
+                    <td id="pdfCasualtyCategory"></td>
+                    <th>詳細傷亡人數描述</th>
+                    <td id="pdfCasualtyCountDetail"></td>
+                </tr>
+                
+                <tr>
+                    <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 15px;">三、處理情形</th>
+                </tr>
+                <tr>
+                    <th>通報警消單位</th>
+                    <td colspan="3" id="pdfPoliceFireStatus"></td>
+                </tr>
+                <tr>
+                    <th>處理進度</th>
+                    <td colspan="3" id="pdfActionTaken" style="height: 150px; vertical-align: top;"></td>
+                </tr>
+            </table>
         </div>
-        
-        <table class="pdf-table">
-            <tr>
-                <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 16px;">一、填報單位</th>
-            </tr>
-            <tr>
-                <th>旅館名稱</th>
-                <td id="pdfHotelName" style="width: 28%;"></td>
-                <th>所屬行政區</th>
-                <td id="pdfDistrict" style="width: 28%;"></td>
-            </tr>
-            <tr>
-                <th>通報人員</th>
-                <td id="pdfReporterName"></td>
-                <th>職稱</th>
-                <td id="pdfReporterTitle"></td>
-            </tr>
-            <tr>
-                <th>聯絡方式</th>
-                <td colspan="3" id="pdfReporterPhone"></td>
-            </tr>
-            
-            <tr>
-                <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 16px;">二、現場狀況</th>
-            </tr>
-            <tr>
-                <th>通報時間</th>
-                <td id="pdfEventTime"></td>
-                <th>事故地點</th>
-                <td id="pdfEventLocation"></td>
-            </tr>
-            <tr>
-                <th>發生原因</th>
-                <td id="pdfEventReasonCategory"></td>
-                <th>原因與災情補充</th>
-                <td id="pdfEventReasonRemark"></td>
-            </tr>
-            <tr>
-                <th>傷亡情形</th>
-                <td id="pdfCasualtyCategory"></td>
-                <th>詳細傷亡人數描述</th>
-                <td id="pdfCasualtyCountDetail"></td>
-            </tr>
-            
-            <tr>
-                <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 16px;">三、處理情形</th>
-            </tr>
-            <tr>
-                <th>通報警消單位</th>
-                <td colspan="3" id="pdfPoliceFireStatus"></td>
-            </tr>
-            <tr>
-                <th>處理進度</th>
-                <td colspan="3" id="pdfActionTaken" style="height: 140px; vertical-align: top;"></td>
-            </tr>
-        </table>
         
         <div class="pdf-footer">
             <strong>提示說明：</strong><br>
@@ -305,7 +310,7 @@
 <footer class="gov-footer text-center">
     <div class="container">
         <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
-        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.1 • 支援跨平台電腦與行動裝置導出</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.2 • 強制單頁防裁切版</p>
     </div>
 </footer>
 
@@ -371,24 +376,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const element = document.getElementById('pdf-template');
         
         const opt = {
-            margin:       0, // 將邊距設為0，改由網頁內的 padding 完美控制
+            margin:       0, 
             filename:     `臺北市旅館通報單_${hotelName}_${district}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
+            pagebreak:    { mode: 'avoid' }, // 核心優化：嚴格禁止元件內部產生跨頁斷點
             html2canvas:  { 
                 scale: 2, 
                 useCORS: true, 
                 letterRendering: true,
                 scrollY: 0,
                 scrollX: 0,
-                width: 794,       // 強制畫布鎖定 A4 寬度
-                windowWidth: 794  // 強制 RWD 解析度在此視窗寬度下渲染，避免手機端排版擠壓
+                width: 794,       // A4 解析度寬度
+                height: 1123,     // A4 解析度長度
+                windowWidth: 794  
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         // 執行下載
         html2pdf().set(opt).from(element).save().then(() => {
-            alert('🎉 通報成功！通報單已下載');
+            alert('通報單已下載');
         }).catch(err => {
             console.error('PDF 產生失敗：', err);
             alert('PDF 導出時發生錯誤，請重試。');
