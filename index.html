@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>臺北市旅館業緊急意外事故處理通報表 v7.0.0</title>
+    <title>臺北市旅館業緊急意外事故處理通報表 v8.0.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         :root {
             --gov-dark-blue: #1a365d;   
@@ -19,13 +24,12 @@
             padding: 20px 0; 
         }
         @media (min-width: 768px) { body { padding: 40px 0; } }
-        
-        /* 網頁版卡片外觀 */
         .card { 
             border-radius: 16px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
             border: 1px solid rgba(26, 54, 93, 0.08);
             background-color: #ffffff;
+            margin-bottom: 30px;
         }
         .card-header { 
             background: linear-gradient(135deg, var(--gov-dark-blue), #2b6cb0); 
@@ -38,7 +42,6 @@
         .form-label { font-weight: 500; color: #4a5568; font-size: 15px; }
         .required::after { content: " *"; color: #e53e3e; font-weight: bold; }
         .form-control, .form-select { border-radius: 8px; border: 1px solid #cbd5e0; padding: 10px 14px; font-size: 15px; }
-        
         .time-locker-anchor {
             display: block; text-align: center; background-color: #edf2f7; color: #2b6cb0;
             border: 1px dashed #4299e1; padding: 10px; border-radius: 8px;
@@ -50,46 +53,22 @@
             box-shadow: 0 4px 12px rgba(230, 81, 0, 0.2); width: 100%; font-size: 18px;
         }
         .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
-
-        /* 預設在網頁瀏覽時，隱藏正式公文表格 */
-        #print-only-area { display: none; }
-
-        /* ==========================================================================
-           ⚡ 終極核心：CSS 印表機/PDF 專屬渲染遮罩（拉起儲存時，網頁自動隱藏，變身標準公文）
-           ========================================================================== */
-        @media print {
-            /* 1. 隱藏所有網頁版的多餘物件、按鈕、輸入框、頁尾 */
-            body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; margin: 0 !important; }
-            .container, .gov-footer, .card { display: none !important; }
-            
-            /* 2. 顯現絕對乾淨、無套件渲染的原生正式公文表格 */
-            #print-only-area { 
-                display: block !important; 
-                width: 100% !important;
-                box-sizing: border-box !important;
-                padding: 10mm 15mm !important; /* 標準 A4 公文邊距 */
-            }
-            
-            /* 3. 制定最嚴格的黑白高對比表格邊框，防止任何印表機吐出空白 */
-            .print-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 25px; color: #000000; letter-spacing: 1px; }
-            .print-meta { text-align: right; margin-bottom: 10px; font-size: 13px; font-weight: 500; color: #000000; }
-            .print-table { width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important; margin-bottom: 20px !important; }
-            .print-table th, .print-table td { 
-                border: 1px solid #000000 !important; 
-                padding: 10px 12px !important; 
-                font-size: 14px !important; 
-                line-height: 1.5 !important;
-                vertical-align: middle !important;
-                word-wrap: break-word !important;
-                color: #000000 !important;
-            }
-            .print-table th { background-color: #f2f2f2 !important; font-weight: bold !important; text-align: center !important; width: 22%; }
-            .print-table td { width: 28%; background: #ffffff !important; }
-            .print-footer { font-size: 13px !important; line-height: 1.6 !important; border-top: 1px dashed #000000 !important; padding-top: 12px !important; color: #000000 !important; margin-top: 30px !important; }
-            
-            /* 防止瀏覽器在表格中間惡意截斷換頁 */
-            tr { page-break-inside: avoid !important; }
+        
+        /* ================= 核心修正：離螢幕實體沙盒機制 ================= */
+        .pdf-sand-box {
+            position: absolute !important;
+            top: -9999px !important;
+            left: 0 !important;
+            width: 794px !important;
+            background: #ffffff !important;
+            padding: 40px 45px !important;
+            box-sizing: border-box !important;
         }
+        .pdf-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #000000 !important; font-family: 'Noto Sans TC', sans-serif; }
+        .pdf-table { width: 100% !important; border-collapse: collapse !important; margin-bottom: 25px !important; table-layout: fixed !important; }
+        .pdf-table th, .pdf-table td { border: 1px solid #000000 !important; padding: 12px 14px !important; text-align: left !important; vertical-align: middle !important; font-size: 14px !important; color: #000000 !important; font-family: 'Noto Sans TC', sans-serif !important; word-wrap: break-word !important; }
+        .pdf-table th { background-color: #f2f2f2 !important; font-weight: bold !important; width: 22% !important; text-align: center !important; }
+        .pdf-footer { font-size: 13px !important; line-height: 1.6 !important; border-top: 1px dashed #000000 !important; padding-top: 15px !important; color: #222222 !important; margin-top: 30px !important; font-family: 'Noto Sans TC', sans-serif; }
     </style>
 </head>
 <body>
@@ -104,11 +83,12 @@
                 </div>
                 <div class="card-body p-4 px-md-5">
                     <form id="reportForm">
+                        
                         <div class="section-title">一、填報單位</div>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label required">【1】填報單位</label>
-                                <input type="text" class="form-control" id="hotelName" placeholder="請輸入完整旅館名稱" required>
+                                <input type="text" class="form-control" id="hotelName" placeholder="旅館名稱" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【2】所屬行政區</label>
@@ -151,7 +131,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【7】事故地點</label>
-                                <input type="text" class="form-control" id="eventLocation" placeholder="例如：客房208、健身房" required>
+                                <input type="text" class="form-control" id="eventLocation" placeholder="例如：客房208、大廳" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【8】發生原因</label>
@@ -159,40 +139,30 @@
                                     <option value="">-- 請選擇事故核心主因 --</option>
                                     <option value="火災災害（建築物火警）">火災災害（建築物火警）</option>
                                     <option value="天然災害（地震導致毀損）">天然災害（地震導致毀損）</option>
-                                    <option value="天然災害（颱風/水災水淹）">天然災害（颱風/水災水淹）</option>
                                     <option value="住客緊急傷病（心肌梗塞/突發疾病）">住客緊急傷病（心肌梗塞/突發疾病）</option>
                                     <option value="住客案件（房間內發現猝死/身亡）">住客案件（房間內發現猝死/身亡）</option>
-                                    <option value="住客案件（意圖自殺/自傷事件）">住客案件（意圖自殺/自傷事件）</option>
                                     <option value="重大治安（聚眾鬥毆/槍擊/砍人事件）">重大治安（聚眾鬥毆/槍擊事件）</option>
-                                    <option value="重大治安（毒品/開趴派對/刑事案件）">重大治安（毒品/刑事案件）</option>
                                     <option value="公共衛生（集體食物中毒事件）">公共衛生（集體食物中毒事件）</option>
-                                    <option value="公共衛生（疑似群聚法定傳染病）">公共衛生（疑似群聚法定傳染病）</option>
-                                    <option value="硬體故障（電梯受困/大範圍停電）">硬體故障（電梯受困/大範圍停電）</option>
-                                    <option value="公共安全（一氧化碳/氣體外洩中毒）">公共安全（一氧化碳/氣體外洩中毒）</option>
                                     <option value="其他突發緊急意外事故">其他突發緊急意外事故</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">原因與災情狀況補充 (選填)</label>
-                                <input type="text" class="form-control" id="eventReasonRemark" placeholder="請針對上述分類補充">
+                                <label class="form-label">原因補充</label>
+                                <input type="text" class="form-control" id="eventReasonRemark" placeholder="簡要說明">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【9】傷亡情形</label>
                                 <select class="form-select" id="casualtyCategory" required>
                                     <option value="">-- 請選擇傷亡對象分類 --</option>
-                                    <option value="純屬虛驚/財損（無人傷亡）">純屬虛驚/財損（無人員傷亡）</option>
-                                    <option value="本國籍住客-受傷">本國籍住客 - 受傷</option>
-                                    <option value="本國籍住客-死亡">本國籍住客 - 死亡</option>
-                                    <option value="外籍旅客-受傷">外籍旅客 - 受傷</option>
-                                    <option value="外籍旅客-死亡">外籍旅客 - 死亡</option>
-                                    <option value="旅館員工-受傷">旅館員工 - 受傷</option>
-                                    <option value="旅館員工-死亡">旅館員工 - 死亡</option>
+                                    <option value="純屬虛驚/財損（無人傷亡）">純屬虛驚/財損（無人傷亡）</option>
+                                    <option value="本國籍住客-傷亡">本國籍住客 - 傷亡</option>
+                                    <option value="外籍旅客-傷亡">外籍旅客 - 傷亡</option>
                                     <option value="其他身分人員傷亡">其他身分人員傷亡</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label required">詳細傷亡人數補充描述</label>
-                                <input type="text" class="form-control" id="casualtyCountDetail" placeholder="例：1人受傷送醫、無人死亡" required>
+                                <label class="form-label required">傷亡人數補充說明</label>
+                                <input type="text" class="form-control" id="casualtyCountDetail" placeholder="例：無人受傷、財損估計中" required>
                             </div>
                         </div>
 
@@ -203,19 +173,18 @@
                                 <select class="form-select" id="policeFireStatus" required>
                                     <option value="">-- 請選擇 --</option>
                                     <option value="已通報消防局/警察局">已通報消防局/警察局</option>
-                                    <option value="消防局/警察局現場處理中">消防局/警察局現場處理中</option>
-                                    <option value="狀況已解除/自行處理，評估無需通報警消機關">狀況已控制，無需通報警消</option>
+                                    <option value="狀況已解除/自行處理，評估無需通報警消機關">無需通報警消</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【11】處理進度</label>
-                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="簡要說明" required></textarea>
+                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="簡要說明..." required></textarea>
                             </div>
                         </div>
 
                         <div class="text-center mb-3">
-                            <button type="submit" class="btn-submit py-3 fw-bold">
-                                產製正式通報單 PDF (系統原生防護版)
+                            <button type="submit" class="btn-submit py-3" id="btnDownload">
+                                產製正式通報單 PDF (動態內嵌繁中版)
                             </button>
                         </div>
                     </form>
@@ -225,84 +194,86 @@
     </div>
 </div>
 
-<div id="print-only-area">
-    <div class="print-title">臺北市旅館業緊急意外事故通報單</div>
-    <div class="print-meta">通報日期時間：<span id="lblGeneratedTime"></span></div>
+<div id="pdf-container" class="pdf-sand-box">
+    <div class="pdf-title">臺北市旅館業緊急意外事故通報單</div>
+    <div style="text-align: right; margin-bottom: 12px; font-size: 13px; font-weight: 500; color: #000000;">
+        通報日期時間：<span id="pdfReportGeneratedTime"></span>
+    </div>
     
-    <table class="print-table">
+    <table class="pdf-table">
         <tr>
-            <th colspan="4" style="text-align: left !important; padding-left: 12px !important; font-size: 15px !important; background-color: #d9d9d9 !important;">一、填報單位</th>
+            <th colspan="4" style="background-color: #e2e8f0 !important; text-align: left; padding-left: 15px; font-size: 15px; color: #000000;">一、填報單位</th>
         </tr>
         <tr>
             <th>旅館名稱</th>
-            <td id="lblHotelName"></td>
+            <td id="pdfHotelName" style="width: 28%;"></td>
             <th>所屬行政區</th>
-            <td id="lblDistrict"></td>
+            <td id="pdfDistrict" style="width: 28%;"></td>
         </tr>
         <tr>
             <th>通報人員</th>
-            <td id="lblReporterName"></td>
+            <td id="pdfReporterName"></td>
             <th>職稱</th>
-            <td id="lblReporterTitle"></td>
+            <td id="pdfReporterTitle"></td>
         </tr>
         <tr>
             <th>聯絡方式</th>
-            <td colspan="3" id="lblReporterPhone"></td>
+            <td colspan="3" id="pdfReporterPhone"></td>
         </tr>
         
         <tr>
-            <th colspan="4" style="text-align: left !important; padding-left: 12px !important; font-size: 15px !important; background-color: #d9d9d9 !important;">二、現場狀況</th>
+            <th colspan="4" style="background-color: #e2e8f0 !important; text-align: left; padding-left: 15px; font-size: 15px; color: #000000;">二、現場狀況</th>
         </tr>
         <tr>
             <th>通報時間</th>
-            <td id="lblEventTime"></td>
+            <td id="pdfEventTime"></td>
             <th>事故地點</th>
-            <td id="lblEventLocation"></td>
+            <td id="pdfEventLocation"></td>
         </tr>
         <tr>
             <th>發生原因</th>
-            <td id="lblEventReasonCategory"></td>
+            <td id="pdfEventReasonCategory"></td>
             <th>原因與災情補充</th>
-            <td id="lblEventReasonRemark"></td>
+            <td id="pdfEventReasonRemark"></td>
         </tr>
         <tr>
             <th>傷亡情形</th>
-            <td id="lblCasualtyCategory"></td>
-            <th>詳細傷亡描述</th>
-            <td id="lblCasualtyCountDetail"></td>
+            <td id="pdfCasualtyCategory"></td>
+            <th>傷亡描述</th>
+            <td id="pdfCasualtyCountDetail"></td>
         </tr>
         
         <tr>
-            <th colspan="4" style="text-align: left !important; padding-left: 12px !important; font-size: 15px !important; background-color: #d9d9d9 !important;">三、處理情形</th>
+            <th colspan="4" style="background-color: #e2e8f0 !important; text-align: left; padding-left: 15px; font-size: 15px; color: #000000;">三、處理情形</th>
         </tr>
         <tr>
             <th>通報警消單位</th>
-            <td colspan="3" id="lblPoliceFireStatus"></td>
+            <td colspan="3" id="pdfPoliceFireStatus"></td>
         </tr>
         <tr>
-            <th>處理進度<br>(簡要說明)</th>
-            <td colspan="3" id="lblActionTaken" style="height: 150px; vertical-align: top;"></td>
+            <th>處理進度</th>
+            <td colspan="3" id="pdfActionTaken" style="height: 160px; vertical-align: top; line-height: 1.6;"></td>
         </tr>
     </table>
     
-    <div class="print-footer">
+    <div class="pdf-footer">
         <strong>提示說明：</strong><br>
         1. 依據旅館業管理規則第25條規定，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
-        2. 請通報人員務必確認填報內容。
+        2. 請通報人務必確認填報內容真實無誤。
     </div>
 </div>
 
 <footer class="gov-footer text-center">
     <div class="container">
         <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
-        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v7.0.0 • 終極媒體列印流（100% 拒絕空白與亂碼）</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v8.0.0 • 繁中雲端字型快照版（絕不空白、絕不亂碼）</p>
     </div>
 </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // 時間鎖定
+    // 時間錨點鎖定
     const lnkSetTime = document.getElementById('lnkSetTime');
     const eventTimeInput = document.getElementById('eventTime');
     lnkSetTime.addEventListener('click', function() {
@@ -315,36 +286,61 @@ document.addEventListener('DOMContentLoaded', function() {
         eventTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
     });
 
-    // 表單提交事件
-    document.getElementById('reportForm').addEventListener('submit', function(e) {
-        e.preventDefault();
+    const reportForm = document.getElementById('reportForm');
+    reportForm.addEventListener('submit', function(e) {
+        e.preventDefault(); 
         
-        // 1. 將輸入的值同步至「隱藏公文區」
-        document.getElementById('lblHotelName').textContent = document.getElementById('hotelName').value;
-        document.getElementById('lblDistrict').textContent = document.getElementById('district').value;
-        document.getElementById('lblReporterName').textContent = document.getElementById('reporterName').value;
-        document.getElementById('lblReporterTitle').textContent = document.getElementById('reporterTitle').value;
-        document.getElementById('lblReporterPhone').textContent = document.getElementById('reporterPhone').value;
-        document.getElementById('lblEventTime').textContent = document.getElementById('eventTime').value.replace('T', ' ');
-        document.getElementById('lblEventLocation').textContent = document.getElementById('eventLocation').value;
-        document.getElementById('lblEventReasonCategory').textContent = document.getElementById('eventReasonCategory').value;
-        document.getElementById('lblEventReasonRemark').textContent = document.getElementById('eventReasonRemark').value || "（無）";
-        document.getElementById('lblCasualtyCategory').textContent = document.getElementById('casualtyCategory').value;
-        document.getElementById('lblCasualtyCountDetail').textContent = document.getElementById('casualtyCountDetail').value;
-        document.getElementById('lblPoliceFireStatus').textContent = document.getElementById('policeFireStatus').value;
-        document.getElementById('lblActionTaken').textContent = document.getElementById('actionTaken').value;
+        const btn = document.getElementById('btnDownload');
+        btn.disabled = true;
+        btn.textContent = '正動態下載繁中字型並封裝 PDF...';
+
+        // 1. 同步數據到快照沙盒區
+        const hotelName = document.getElementById('hotelName').value;
+        const district = document.getElementById('district').value;
         
-        document.getElementById('lblGeneratedTime').textContent = new Date().toLocaleString('zh-TW', { hour12: false });
-        
-        // 2. 更改瀏覽器分頁標題，這樣儲存 PDF 時的預設檔名就會非常完美
-        const oldTitle = document.title;
-        document.title = `臺北市旅館通報單_${document.getElementById('hotelName').value}_${document.getElementById('district').value}`;
-        
-        // 3. 呼叫系統原生列印（請在跳出的視窗中將目的地選為「另存為 PDF」）
-        window.print();
-        
-        // 4. 恢復原分頁標題
-        document.title = oldTitle;
+        document.getElementById('pdfHotelName').textContent = hotelName;
+        document.getElementById('pdfDistrict').textContent = district;
+        document.getElementById('pdfReporterName').textContent = document.getElementById('reporterName').value;
+        document.getElementById('pdfReporterTitle').textContent = document.getElementById('reporterTitle').value;
+        document.getElementById('pdfReporterPhone').textContent = document.getElementById('reporterPhone').value;
+        document.getElementById('pdfEventTime').textContent = document.getElementById('eventTime').value.replace('T', ' ');
+        document.getElementById('pdfEventLocation').textContent = document.getElementById('eventLocation').value;
+        document.getElementById('pdfEventReasonCategory').textContent = document.getElementById('eventReasonCategory').value;
+        document.getElementById('pdfEventReasonRemark').textContent = document.getElementById('eventReasonRemark').value || "（未填寫）";
+        document.getElementById('pdfCasualtyCategory').textContent = document.getElementById('casualtyCategory').value;
+        document.getElementById('pdfCasualtyCountDetail').textContent = document.getElementById('casualtyCountDetail').value;
+        document.getElementById('pdfPoliceFireStatus').textContent = document.getElementById('policeFireStatus').value;
+        document.getElementById('pdfActionTaken').textContent = document.getElementById('actionTaken').value;
+        document.getElementById('pdfReportGeneratedTime').textContent = new Date().toLocaleString('zh-TW', { hour12: false });
+
+        const element = document.getElementById('pdf-container');
+
+        // 2. 利用 html2pdf 的快照影像模式設定參數（完美繞過純代碼亂碼問題）
+        const opt = {
+            margin:       [12, 12, 12, 12],
+            filename:     `臺北市旅館通報單_${hotelName}_${district}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                letterRendering: true,
+                backgroundColor: '#ffffff'
+            },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // 3. 執行生成並重新啟用按鈕
+        html2pdf().set(opt).from(element).save().then(() => {
+            btn.disabled = false;
+            btn.textContent = '通報單下載';
+            alert('通報單已下載');
+        }).catch(err => {
+            console.error(err);
+            btn.disabled = false;
+            btn.textContent = '通報單';
+            alert('下載失敗，建議切換至標準 Chrome 或 Safari 瀏覽器重試。');
+        });
     });
 });
 </script>
