@@ -209,7 +209,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【11】處理進度</label>
-                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="請扼要說明當前處理進度" required></textarea>
+                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="簡要說明" required></textarea>
                             </div>
                         </div>
 
@@ -280,7 +280,7 @@
             <td colspan="3" id="lblPoliceFireStatus"></td>
         </tr>
         <tr>
-            <th>處理進度<br>(扼要說明)</th>
+            <th>處理進度<br>(簡要說明)</th>
             <td colspan="3" id="lblActionTaken" style="height: 150px; vertical-align: top;"></td>
         </tr>
     </table>
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('lblEventTime').textContent = document.getElementById('eventTime').value.replace('T', ' ');
         document.getElementById('lblEventLocation').textContent = document.getElementById('eventLocation').value;
         document.getElementById('lblEventReasonCategory').textContent = document.getElementById('eventReasonCategory').value;
-        document.getElementById('lblEventReasonRemark').textContent = document.getElementById('eventReasonRemark').value || "（未填寫）";
+        document.getElementById('lblEventReasonRemark').textContent = document.getElementById('eventReasonRemark').value || "（無）";
         document.getElementById('lblCasualtyCategory').textContent = document.getElementById('casualtyCategory').value;
         document.getElementById('lblCasualtyCountDetail').textContent = document.getElementById('casualtyCountDetail').value;
         document.getElementById('lblPoliceFireStatus').textContent = document.getElementById('policeFireStatus').value;
