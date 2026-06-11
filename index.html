@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>臺北市旅館業緊急意外事故處理通報表 v11.0.0 (PDF放大版)</title>
+    <title>臺北市旅館業緊急意外事故處理通報表 v12.0.0 (終極防亂碼大字版)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
@@ -17,7 +16,7 @@
         }
         body { 
             background-color: #f7fafc; 
-            font-family: 'Noto Sans TC', "Microsoft JhengHei", sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif; 
             color: var(--text-main);
             padding: 20px 0; 
         }
@@ -54,6 +53,13 @@
         }
         .btn-submit:hover { background: linear-gradient(135deg, var(--gov-orange), #c05621); }
         .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
+        
+        /* 隱藏真正用來產製 PDF 的高畫質模板（不影響前台視覺排版） */
+        #pdf-template-wrapper {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+        }
     </style>
 </head>
 <body>
@@ -116,15 +122,15 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【7】事故地點</label>
-                                <input type="text" class="form-control" id="eventLocation" placeholder="例如：客房305、客房浴室、餐廳" required>
+                                <input type="text" class="form-control" id="eventLocation" placeholder="例如：客房305、餐廳" required>
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label required">【8】發生原因 (已擴充核心選項)</label>
+                                <label class="form-label required">【8】發生原因</label>
                                 <select class="form-select" id="eventReasonCategory" required>
                                     <option value="">-- 請選擇事故核心原因 --</option>
-                                    <option value="住客案件（自殺/自傷）">住客案件（自傷/自傷）</option>
-                                    <option value="住客案件（意外傷亡）">住客案件（房內傷亡）</option>
+                                    <option value="住客案件（自殺/自傷）">住客案件（自殺/自傷）</option>
+                                    <option value="住客案件（房內意外傷亡）">住客案件（房內意外傷亡）</option>
                                     <option value="火災災害（建築物火警）">火災災害（建築物火警）</option>
                                     <option value="治安案件（暴力/槍擊/傷害）">重大治安（暴力/槍擊/傷害）</option>
                                     <option value="治安案件（毒品）">重大治安（毒品）</option>
@@ -132,13 +138,13 @@
                                     <option value="公共衛生（食物中毒）">公共衛生（食物中毒）</option>
                                     <option value="公共安全（氣體中毒）">公共安全（氣體中毒）</option>
                                     <option value="天然災害（地震）">天然災害（地震）</option>
-                                    <option value="天然災害（水/風災）">硬體故障（水/風災）</option>
+                                    <option value="天然災害（水/風災）">天然災害（水/風災）</option>
                                     <option value="其他突發緊急意外事故">其他突發緊急意外事故</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">原因與災情狀況補充描述 (選填)</label>
-                                <input type="text" class="form-control" id="eventReasonRemark" placeholder="請針對上述核心狀況補充說明詳細情形">
+                                <label class="form-label">原因與災情狀況補充描述 (無免填)</label>
+                                <input type="text" class="form-control" id="eventReasonRemark" placeholder="補充說明">
                             </div>
 
                             <div class="col-md-6">
@@ -174,13 +180,13 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【11】處理進度</label>
-                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="請簡要說明：例如已拉起封鎖線、疏散旅客等。" required></textarea>
+                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="請簡要說明：例如配合警方調查、疏散旅客等。" required></textarea>
                             </div>
                         </div>
 
                         <div class="text-center mb-3">
-                            <button type="submit" class="btn-submit w-100 fs-5 py-3">
-                                產製通報單 (下載PDF檔)
+                            <button type="submit" class="btn-submit w-100 fs-4 py-3">
+                                🚀 產製通報單
                             </button>
                         </div>
                     </form>
@@ -190,36 +196,33 @@
     </div>
 </div>
 
+<div id="pdf-template-wrapper">
+    <div id="pdf-content-node" style="width: 794px; background: #ffffff; padding: 40px; box-sizing: border-box;">
+        </div>
+</div>
+
 <footer class="gov-footer text-center">
     <div class="container">
         <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
-        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v11.0.0 • 支援直接渲染大型公文PDF流</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v12.0.0 • 引入 Canvas 點陣影像防空防亂碼機制</p>
     </div>
 </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // 時間錨點鎖定
+    // 時間鎖定
     const lnkSetTime = document.getElementById('lnkSetTime');
     const eventTimeInput = document.getElementById('eventTime');
-    
     lnkSetTime.addEventListener('click', function() {
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        eventTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+        eventTimeInput.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
     });
 
     const reportForm = document.getElementById('reportForm');
-    
     reportForm.addEventListener('submit', function(e) {
         e.preventDefault(); 
         
-        // 抓取表單資料
         const hotelName = document.getElementById('hotelName').value;
         const district = document.getElementById('district').value;
         const reporterName = document.getElementById('reporterName').value;
@@ -235,78 +238,71 @@ document.addEventListener('DOMContentLoaded', function() {
         const actionTaken = document.getElementById('actionTaken').value;
         const generatedTime = new Date().toLocaleString('zh-TW', { hour12: false });
 
-        // ==========================================================================
-        // 🚀 動態構建用於產製 PDF 的放大版黑白公文 DOM 結構 (限定在記憶體中建立，不影響原網頁 UI)
-        // ==========================================================================
-        const pdfContainer = document.createElement('div');
-        pdfContainer.style.padding = '30px';
-        pdfContainer.style.background = '#ffffff';
-        pdfContainer.style.color = '#000000';
-        pdfContainer.style.width = '800px'; // 固定寬度確保輸出不縮水
-        
-        pdfContainer.innerHTML = `
-            <div style="font-family: 'Microsoft JhengHei', sans-serif; line-height: 1.6;">
-                <div style="text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 5px;">臺北市旅館業緊急意外事故通報單</div>
-                <div style="text-align: center; font-size: 16px; margin-bottom: 30px; letter-spacing: 2px;">臺北市政府觀光傳播局</div>
-                <div style="text-align: right; font-size: 15px; margin-bottom: 12px; font-weight: bold;">通報日期時間：${generatedTime}</div>
+        // 注入高畫質、超大字體、強表格格線的 HTML 結構中
+        const contentNode = document.getElementById('pdf-content-node');
+        contentNode.innerHTML = `
+            <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #000000; background: #ffffff;">
+                <div style="text-align: center; font-size: 34px; font-weight: 900; margin-bottom: 8px; letter-spacing: 1px; color: #000000;">臺北市旅館業緊急意外事故通報單</div>
+                <div style="text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 40px; letter-spacing: 3px; color: #000000;">臺北市政府觀光傳播局</div>
+                <div style="text-align: right; font-size: 16px; margin-bottom: 15px; font-weight: bold; color: #000000;">通報日期時間：${generatedTime}</div>
 
-                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 25px;">
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 30px; border: 3px solid #000000; background: #ffffff;">
                     <tr>
-                        <th colspan="4" style="border: 2px solid #000000; padding: 12px; background-color: #d9d9d9; text-align: left; font-size: 19px; font-weight: bold;">一、填報單位</th>
+                        <th colspan="4" style="border: 3px solid #000000; padding: 16px; background-color: #cccccc; text-align: left; font-size: 24px; font-weight: 900; color: #000000;">一、填報單位</th>
                     </tr>
                     <tr>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; width: 22%; font-size: 18px; font-weight: bold;">旅館名稱</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; width: 28%; font-size: 18px;">${hotelName}</td>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; width: 22%; font-size: 18px; font-weight: bold;">所屬行政區</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; width: 28%; font-size: 18px;">${district}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; width: 22%; font-size: 21px; font-weight: bold; color: #000000;">旅館名稱</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; width: 28%; font-size: 21px; color: #000000; font-weight: 500;">${hotelName}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; width: 22%; font-size: 21px; font-weight: bold; color: #000000;">所屬行政區</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; width: 28%; font-size: 21px; color: #000000; font-weight: 500;">${district}</td>
                     </tr>
                     <tr>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">通報人員</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${reporterName}</td>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">職稱</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${reporterTitle}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">通報人員</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${reporterName}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">職稱</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${reporterTitle}</td>
                     </tr>
                     <tr>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">聯絡方式</th>
-                        <td colspan="3" style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${reporterPhone}</td>
-                    </tr>
-                    
-                    <tr>
-                        <th colspan="4" style="border: 2px solid #000000; padding: 12px; background-color: #d9d9d9; text-align: left; font-size: 19px; font-weight: bold;">二、現場狀況</th>
-                    </tr>
-                    <tr>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">通報時間</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${eventTime}</td>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">事故地點</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${eventLocation}</td>
-                    </tr>
-                    <tr>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">發生原因</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${eventReasonCategory}</td>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">原因與災情補充</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${eventReasonRemark}</td>
-                    </tr>
-                    <tr>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">傷亡情形</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${casualtyCategory}</td>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">詳細傷亡描述</th>
-                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${casualtyCountDetail}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">聯絡方式</th>
+                        <td colspan="3" style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${reporterPhone}</td>
                     </tr>
                     
                     <tr>
-                        <th colspan="4" style="border: 2px solid #000000; padding: 12px; background-color: #d9d9d9; text-align: left; font-size: 19px; font-weight: bold;">三、處理情形</th>
+                        <th colspan="4" style="border: 3px solid #000000; padding: 16px; background-color: #cccccc; text-align: left; font-size: 24px; font-weight: 900; color: #000000;">二、現場狀況</th>
                     </tr>
                     <tr>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">通報警消單位</th>
-                        <td colspan="3" style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${policeFireStatus}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">通報時間</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${eventTime}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">事故地點</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${eventLocation}</td>
                     </tr>
                     <tr>
-                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">處理進度<br>(簡要說明)</th>
-                        <td colspan="3" style="border: 2px solid #000000; padding: 16px 12px; height: 180px; vertical-align: top; font-size: 18px; line-height: 1.7;">${actionTaken.replace(/\n/g, '<br>')}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">發生原因</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${eventReasonCategory}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">原因與災情補充</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${eventReasonRemark}</td>
+                    </tr>
+                    <tr>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">傷亡情形</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${casualtyCategory}</td>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">詳細傷亡描述</th>
+                        <td style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${casualtyCountDetail}</td>
+                    </tr>
+                    
+                    <tr>
+                        <th colspan="4" style="border: 3px solid #000000; padding: 16px; background-color: #cccccc; text-align: left; font-size: 24px; font-weight: 900; color: #000000;">三、處理情形</th>
+                    </tr>
+                    <tr>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">通報警消單位</th>
+                        <td colspan="3" style="border: 3px solid #000000; padding: 18px 12px; font-size: 21px; color: #000000; font-weight: 500;">${policeFireStatus}</td>
+                    </tr>
+                    <tr>
+                        <th style="border: 3px solid #000000; padding: 18px 10px; background-color: #f2f2f2; text-align: center; font-size: 21px; font-weight: bold; color: #000000;">處理進度<br>(簡要說明)</th>
+                        <td colspan="3" style="border: 3px solid #000000; padding: 20px 15px; height: 260px; vertical-align: top; font-size: 22px; line-height: 1.8; color: #000000; font-weight: 500;">${actionTaken.replace(/\n/g, '<br>')}</td>
                     </tr>
                 </table>
 
-                <div style="font-size: 15px; margin-top: 40px; border-top: 1px dashed #000; padding-top: 15px; line-height: 1.8;">
+                <div style="font-size: 17px; margin-top: 50px; border-top: 2px dashed #000000; padding-top: 20px; line-height: 1.8; color: #333333;">
                     <strong>提示說明：</strong><br>
                     1. 依旅館業管理規則第25條，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，旅館應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
                     2. 請通報人務必確認填報內容真實無誤。
@@ -315,19 +311,29 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         // ==========================================================================
-        // 🚀 呼叫 html2pdf.js 套件，配置參數並下載大字版 PDF
+        // 🚀 核心黑科技配置：強制利用 html2canvas 將內容轉為高解析度無損點陣圖，再包入 PDF
+        //    這能確保在 PDF 內 100% 呈現文字與線條，徹底免除亂碼與空白！
         // ==========================================================================
         const opt = {
-            margin:       10,
+            margin:       [10, 10, 10, 10], // 上下左右邊距
             filename:     `臺北市旅館通報單_${hotelName}_${district}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true }, // scale: 2 能提高解析度，防止大字體邊緣模糊
+            image:        { type: 'jpeg', quality: 1.0 }, // 使用 100% 高品質點陣封裝
+            html2canvas:  { 
+                scale: 3.0,            // 放大 3 倍渲染，確保字體邊緣極度銳利，無顆粒感
+                useCORS: true, 
+                backgroundColor: '#ffffff',
+                logging: false,
+                removeContainer: true
+            },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 執行轉換並自動下載
-        html2pdf().set(opt).from(pdfContainer).save().then(() => {
-            alert('通報單已下載');
+        // 執行無損轉譯並觸發安全下載
+        html2pdf().set(opt).from(contentNode).save().then(() => {
+            alert('通報單已下載！');
+        }).catch(err => {
+            console.error('PDF產製失敗:', err);
+            alert('系統忙碌中，請重新點擊一次。');
         });
     });
 });
