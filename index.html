@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>臺北市旅館業緊急意外事故處理通報表 v10.0.0</title>
+    <title>臺北市旅館業緊急意外事故處理通報表 v11.0.0 (PDF放大版)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         :root {
@@ -62,7 +64,7 @@
             <div class="card">
                 <div class="card-header text-center">
                     <h3 class="mb-1 fw-bold">臺北市旅館業緊急意外事故處理通報表</h3>
-                    <small>臺北市政府觀光傳播局 • 專責公務填報系統</small>
+                    <small>臺北市政府觀光傳播局</small>
                 </div>
                 <div class="card-body p-4 px-md-5">
                     <form id="reportForm">
@@ -71,7 +73,7 @@
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label required">【1】填報單位</label>
-                                <input type="text" class="form-control" id="hotelName" placeholder="請輸入完整旅館名稱" required>
+                                <input type="text" class="form-control" id="hotelName" placeholder="請輸入旅館名稱" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【2】所屬行政區</label>
@@ -122,7 +124,7 @@
                                 <select class="form-select" id="eventReasonCategory" required>
                                     <option value="">-- 請選擇事故核心原因 --</option>
                                     <option value="住客案件（自殺/自傷）">住客案件（自傷/自傷）</option>
-                                    <option value="住客案件（房內意外傷亡）">住客案件（房內房內傷亡）</option>
+                                    <option value="住客案件（意外傷亡）">住客案件（房內傷亡）</option>
                                     <option value="火災災害（建築物火警）">火災災害（建築物火警）</option>
                                     <option value="治安案件（暴力/槍擊/傷害）">重大治安（暴力/槍擊/傷害）</option>
                                     <option value="治安案件（毒品）">重大治安（毒品）</option>
@@ -172,13 +174,13 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【11】處理進度</label>
-                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="請簡要說明：例如已拉起封鎖線、配合警方調查、疏散旅客等。" required></textarea>
+                                <textarea class="form-control" id="actionTaken" rows="3" placeholder="請簡要說明：例如已拉起封鎖線、疏散旅客等。" required></textarea>
                             </div>
                         </div>
 
                         <div class="text-center mb-3">
                             <button type="submit" class="btn-submit w-100 fs-5 py-3">
-                                產製通報單
+                                產製通報單 (下載PDF檔)
                             </button>
                         </div>
                     </form>
@@ -191,7 +193,7 @@
 <footer class="gov-footer text-center">
     <div class="container">
         <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
-        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v10.0.0 • 獨立純文字封裝流（徹底免除空白與亂碼）</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v11.0.0 • 支援直接渲染大型公文PDF流</p>
     </div>
 </footer>
 
@@ -234,125 +236,99 @@ document.addEventListener('DOMContentLoaded', function() {
         const generatedTime = new Date().toLocaleString('zh-TW', { hour12: false });
 
         // ==========================================================================
-        // 🚀 核心黑科技：直接構建高相容黑白公文文檔字串（完全不依賴任何外部畫圖 Canvas 或 PDF 字型包）
+        // 🚀 動態構建用於產製 PDF 的放大版黑白公文 DOM 結構 (限定在記憶體中建立，不影響原網頁 UI)
         // ==========================================================================
-        const outputHtmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>臺北市旅館通報單_${hotelName}_${district}</title>
-    <style>
-        body { font-family: "Microsoft JhengHei", "Apple LiGothic Medium", sans-serif; padding: 20px; color: #000; background: #fff; line-height: 1.5; }
-        .title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-        .subtitle { text-align: center; font-size: 14px; margin-bottom: 25px; letter-spacing: 2px; }
-        .meta-info { text-align: right; font-size: 13px; margin-bottom: 8px; font-weight: bold; }
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 20px; }
-        th, td { border: 1.5px solid #000000; padding: 12px 10px; font-size: 14px; text-align: left; vertical-align: middle; word-wrap: break-word; }
-        th { background-color: #f2f2f2; font-weight: bold; text-align: center; width: 22%; }
-        td { width: 28%; }
-        .section-header { background-color: #d9d9d9 !important; text-align: left !important; padding-left: 15px; font-size: 15px; font-weight: bold; }
-        .footer-note { font-size: 13px; margin-top: 30px; border-top: 1px dashed #000; padding-top: 15px; line-height: 1.7; }
-        @media print {
-            .no-print { display: none; }
-            body { padding: 0; }
-        }
-    </style>
-</head>
-<body>
-    <div class="no-print" style="background:#fff3cd; color:#856404; padding:12px; border:1px solid #ffeeba; border-radius:6px; margin-bottom:20px; font-size:14px; font-weight:bold;">
-    </div>
-
-    <div class="title">臺北市旅館業緊急意外事故通報單</div>
-    <div class="subtitle">臺北市政府觀光傳播局</div>
-    <div class="meta-info">通報日期時間：${generatedTime}</div>
-
-    <table>
-        <tr>
-            <th colspan="4" class="section-header">一、填報單位</th>
-        </tr>
-        <tr>
-            <th>旅館名稱</th>
-            <td>${hotelName}</td>
-            <th>所屬行政區</th>
-            <td>${district}</td>
-        </tr>
-        <tr>
-            <th>通報人員</th>
-            <td>${reporterName}</td>
-            <th>職稱</th>
-            <td>${reporterTitle}</td>
-        </tr>
-        <tr>
-            <th>聯絡方式</th>
-            <td colspan="3">${reporterPhone}</td>
-        </tr>
+        const pdfContainer = document.createElement('div');
+        pdfContainer.style.padding = '30px';
+        pdfContainer.style.background = '#ffffff';
+        pdfContainer.style.color = '#000000';
+        pdfContainer.style.width = '800px'; // 固定寬度確保輸出不縮水
         
-        <tr>
-            <th colspan="4" class="section-header">二、現場狀況</th>
-        </tr>
-        <tr>
-            <th>通報時間</th>
-            <td>${eventTime}</td>
-            <th>事故地點</th>
-            <td>${eventLocation}</td>
-        </tr>
-        <tr>
-            <th>發生原因</th>
-            <td>${eventReasonCategory}</td>
-            <th>原因與災情補充</th>
-            <td>${eventReasonRemark}</td>
-        </tr>
-        <tr>
-            <th>傷亡情形</th>
-            <td>${casualtyCategory}</td>
-            <th>詳細傷亡描述</th>
-            <td>${casualtyCountDetail}</td>
-        </tr>
-        
-        <tr>
-            <th colspan="4" class="section-header">三、處理情形</th>
-        </tr>
-        <tr>
-            <th>通報警消單位</th>
-            <td colspan="3">${policeFireStatus}</td>
-        </tr>
-        <tr>
-            <th>處理進度<br>(簡要說明)</th>
-            <td colspan="3" style="height: 150px; vertical-align: top; line-height: 1.6;">${actionTaken.replace(/\n/g, '<br>')}</td>
-        </tr>
-    </table>
+        pdfContainer.innerHTML = `
+            <div style="font-family: 'Microsoft JhengHei', sans-serif; line-height: 1.6;">
+                <div style="text-align: center; font-size: 28px; font-weight: bold; margin-bottom: 5px;">臺北市旅館業緊急意外事故通報單</div>
+                <div style="text-align: center; font-size: 16px; margin-bottom: 30px; letter-spacing: 2px;">臺北市政府觀光傳播局</div>
+                <div style="text-align: right; font-size: 15px; margin-bottom: 12px; font-weight: bold;">通報日期時間：${generatedTime}</div>
 
-    <div class="footer-note">
-        <strong>提示說明：</strong><br>
-        1. 依旅館業管理規則第25條，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，旅館應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
-        2. 請通報人務必確認填報內容真實無誤。
-    </div>
-</body>
-</html>
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 25px;">
+                    <tr>
+                        <th colspan="4" style="border: 2px solid #000000; padding: 12px; background-color: #d9d9d9; text-align: left; font-size: 19px; font-weight: bold;">一、填報單位</th>
+                    </tr>
+                    <tr>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; width: 22%; font-size: 18px; font-weight: bold;">旅館名稱</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; width: 28%; font-size: 18px;">${hotelName}</td>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; width: 22%; font-size: 18px; font-weight: bold;">所屬行政區</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; width: 28%; font-size: 18px;">${district}</td>
+                    </tr>
+                    <tr>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">通報人員</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${reporterName}</td>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">職稱</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${reporterTitle}</td>
+                    </tr>
+                    <tr>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">聯絡方式</th>
+                        <td colspan="3" style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${reporterPhone}</td>
+                    </tr>
+                    
+                    <tr>
+                        <th colspan="4" style="border: 2px solid #000000; padding: 12px; background-color: #d9d9d9; text-align: left; font-size: 19px; font-weight: bold;">二、現場狀況</th>
+                    </tr>
+                    <tr>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">通報時間</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${eventTime}</td>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">事故地點</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${eventLocation}</td>
+                    </tr>
+                    <tr>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">發生原因</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${eventReasonCategory}</td>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">原因與災情補充</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${eventReasonRemark}</td>
+                    </tr>
+                    <tr>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">傷亡情形</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${casualtyCategory}</td>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">詳細傷亡描述</th>
+                        <td style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${casualtyCountDetail}</td>
+                    </tr>
+                    
+                    <tr>
+                        <th colspan="4" style="border: 2px solid #000000; padding: 12px; background-color: #d9d9d9; text-align: left; font-size: 19px; font-weight: bold;">三、處理情形</th>
+                    </tr>
+                    <tr>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">通報警消單位</th>
+                        <td colspan="3" style="border: 2px solid #000000; padding: 14px 12px; font-size: 18px;">${policeFireStatus}</td>
+                    </tr>
+                    <tr>
+                        <th style="border: 2px solid #000000; padding: 14px 10px; background-color: #f2f2f2; text-align: center; font-size: 18px; font-weight: bold;">處理進度<br>(簡要說明)</th>
+                        <td colspan="3" style="border: 2px solid #000000; padding: 16px 12px; height: 180px; vertical-align: top; font-size: 18px; line-height: 1.7;">${actionTaken.replace(/\n/g, '<br>')}</td>
+                    </tr>
+                </table>
+
+                <div style="font-size: 15px; margin-top: 40px; border-top: 1px dashed #000; padding-top: 15px; line-height: 1.8;">
+                    <strong>提示說明：</strong><br>
+                    1. 依旅館業管理規則第25條，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，旅館應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
+                    2. 請通報人務必確認填報內容真實無誤。
+                </div>
+            </div>
         `;
 
-        // 用 Blob 將純文字包裝成標準網頁文件流
-        const blob = new Blob([outputHtmlContent], { type: 'text/html;charset=utf-8;' });
-        const fileName = `臺北市旅館通報單_${hotelName}_${district}.html`;
-        
-        // 觸發安全下載機制
-        if (navigator.msSaveBlob) { 
-            navigator.msSaveBlob(blob, fileName);
-        } else {
-            const link = document.createElement("a");
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute("href", url);
-                link.setAttribute("download", fileName);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
-        
-        alert('通報單已下載');
+        // ==========================================================================
+        // 🚀 呼叫 html2pdf.js 套件，配置參數並下載大字版 PDF
+        // ==========================================================================
+        const opt = {
+            margin:       10,
+            filename:     `臺北市旅館通報單_${hotelName}_${district}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true }, // scale: 2 能提高解析度，防止大字體邊緣模糊
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // 執行轉換並自動下載
+        html2pdf().set(opt).from(pdfContainer).save().then(() => {
+            alert('通報單已下載');
+        });
     });
 });
 </script>
