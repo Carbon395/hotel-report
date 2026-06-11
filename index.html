@@ -121,16 +121,16 @@
                                 <label class="form-label required">【8】發生原因 (已擴充核心選項)</label>
                                 <select class="form-select" id="eventReasonCategory" required>
                                     <option value="">-- 請選擇事故核心原因 --</option>
-                                    <option value="住客案件（自傷事件）">住客案件（自傷事件）</option>
-                                    <option value="住客案件（房內傷亡）">住客案件（房內傷亡）</option>
+                                    <option value="住客案件（自殺/自傷）">住客案件（自傷/自傷）</option>
+                                    <option value="住客案件（房內意外傷亡）">住客案件（房內房內傷亡）</option>
                                     <option value="火災災害（建築物火警）">火災災害（建築物火警）</option>
-                                    <option value="重大治安（暴力事件）">重大治安（暴力事件）</option>
-                                    <option value="重大治安（毒品事件）">重大治安（毒品事件）</option>
-                                    <option value="住客緊急傷病（突發疾病）">住客緊急傷病（突發疾病）</option>
+                                    <option value="治安案件（暴力/槍擊/傷害）">重大治安（暴力/槍擊/傷害）</option>
+                                    <option value="治安案件（毒品）">重大治安（毒品）</option>
+                                    <option value="公共衛生（傳染病）">公共衛生（傳染病）</option>
                                     <option value="公共衛生（食物中毒）">公共衛生（食物中毒）</option>
                                     <option value="公共安全（氣體中毒）">公共安全（氣體中毒）</option>
-                                    <option value="天然災害（地震導致建物結構毀損）">天然災害（強烈地震導致建物結構毀損）</option>
-                                    <option value="硬體故障（電梯受困 / 大範圍停電）">硬體故障（電梯受困 / 大範圍停電）</option>
+                                    <option value="天然災害（地震）">天然災害（地震）</option>
+                                    <option value="天然災害（水/風災）">硬體故障（水/風災）</option>
                                     <option value="其他突發緊急意外事故">其他突發緊急意外事故</option>
                                 </select>
                             </div>
@@ -166,8 +166,8 @@
                                 <select class="form-select" id="policeFireStatus" required>
                                     <option value="">-- 請選擇 --</option>
                                     <option value="已通報消防局/警察局處理中">已通報消防局/警察局處理中</option>
-                                    <option value="警消人員已抵達現場處理中">警消人員已抵達現場處理中</option>
-                                    <option value="狀況已解除/自行處置完成，評估無需通報警消">狀況已控制，評估無需通報警消</option>
+                                    <option value="警消人員現場處理中">警消人員現場處理中</option>
+                                    <option value="狀況解除/自行處置完成，評估無需通報警消">狀況控制，評估無需通報警消</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
@@ -178,7 +178,7 @@
 
                         <div class="text-center mb-3">
                             <button type="submit" class="btn-submit w-100 fs-5 py-3">
-                                產製正式通報單 (100% 繁中防白屏安全版)
+                                產製通報單
                             </button>
                         </div>
                     </form>
@@ -261,7 +261,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </head>
 <body>
     <div class="no-print" style="background:#fff3cd; color:#856404; padding:12px; border:1px solid #ffeeba; border-radius:6px; margin-bottom:20px; font-size:14px; font-weight:bold;">
-        💡 公務提示：本檔案已自動啟用繁體中文高相容通道。若需要列印或另存為實體 PDF，請直接按鍵盤【Ctrl + P】（或手機瀏覽器選單點「分享 > 列印」），目的地選擇「另存為 PDF」即可。
     </div>
 
     <div class="title">臺北市旅館業緊急意外事故通報單</div>
