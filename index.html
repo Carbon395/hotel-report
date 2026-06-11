@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.5</title>
+    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.6</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
-            --gov-dark-blue: #1a365d;   /* 機關主色：深商務藍 */
-            --gov-light-blue: #f0f4f8;  /* 背景柔和藍 */
-            --gov-orange: #e65100;      /* 警示強調色：金橘色 */
-            --text-main: #2d3748;       /* 內文深灰 */
+            --gov-dark-blue: #1a365d;   
+            --gov-light-blue: #f0f4f8;  
+            --gov-orange: #e65100;      
+            --text-main: #2d3748;       
         }
         body { 
             background-color: #f7fafc; 
@@ -50,7 +50,6 @@
         .form-control, .form-select {
             border-radius: 8px; border: 1px solid #cbd5e0; padding: 10px 14px; font-size: 15px;
         }
-        /* 獨立時間按鈕 */
         .time-locker-anchor {
             display: block; text-align: center; background-color: #edf2f7; color: #2b6cb0;
             border: 1px dashed #4299e1; padding: 10px; border-radius: 8px;
@@ -66,16 +65,12 @@
         .btn-submit:hover { background: linear-gradient(135deg, var(--gov-orange), #c05621); }
         .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
         
-        /* PDF 隱藏容器配置 (修正：初始使用不干擾排版的透明度與位置處理) */
+        /* 核心修復：利用不影響版面的常駐渲染來防空白 */
         #pdf-wrapper {
-            position: fixed;
-            left: -9999px;
-            top: -9999px;
             width: 794px;
-            height: 1123px;
-            overflow: hidden;
-            z-index: -9999;
-            opacity: 0;
+            height: 0;       /* 初始高度為 0，完全隱藏在畫面上 */
+            overflow: hidden; /* 超出不顯示，不引發網頁滾動條 */
+            background: #ffffff;
         }
         #pdf-template { 
             width: 794px; 
@@ -232,7 +227,6 @@
     </div>
 </div>
 
-<!-- PDF 擷取範本區域 -->
 <div id="pdf-wrapper">
     <div id="pdf-template">
         <div class="pdf-header-zone">
@@ -309,7 +303,7 @@
 <footer class="gov-footer text-center">
     <div class="container">
         <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
-        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.5 • 修復導出空白問題</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.6 • 採用常駐流渲染技術</p>
     </div>
 </footer>
 
@@ -335,7 +329,7 @@ document.addEventListener('DOMContentLoaded', function() {
     reportForm.addEventListener('submit', function(e) {
         e.preventDefault(); 
         
-        // 1. 讀取表單資料
+        // 1. 取得使用者輸入的值
         const hotelName = document.getElementById('hotelName').value;
         const district = document.getElementById('district').value;
         const reporterName = document.getElementById('reporterName').value;
@@ -350,7 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const policeFireStatus = document.getElementById('policeFireStatus').value;
         const actionTaken = document.getElementById('actionTaken').value;
 
-        // 2. 寫入 PDF 模板容器
+        // 2. 將值印上實際的 HTML 節點中
         document.getElementById('pdfHotelName').textContent = hotelName;
         document.getElementById('pdfDistrict').textContent = district;
         document.getElementById('pdfReporterName').textContent = reporterName;
@@ -368,13 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentNow = new Date();
         document.getElementById('pdfReportGeneratedTime').textContent = currentNow.toLocaleString('zh-TW', { hour12: false });
 
-        // 3. 將隱藏區移入可見視野，供 html2pdf 擷取
-        const wrapper = document.getElementById('pdf-wrapper');
-        wrapper.style.left = '0px';
-        wrapper.style.top = '0px';
-        wrapper.style.zIndex = '9999';
-        wrapper.style.opacity = '1';
-
+        // 3. 直接進行擷取（因為元素原本就在流中渲染著，無須任何樣式變更與等待延遲）
         const element = document.getElementById('pdf-template');
         
         const opt = {
@@ -395,24 +383,12 @@ document.addEventListener('DOMContentLoaded', function() {
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 修正核心：延遲 150 毫秒執行，確保資料與樣式已完全渲染進去
-        setTimeout(() => {
-            html2pdf().set(opt).from(element).save().then(() => {
-                // 恢復原先的隱藏定位
-                wrapper.style.left = '-9999px';
-                wrapper.style.top = '-9999px';
-                wrapper.style.zIndex = '-9999';
-                wrapper.style.opacity = '0';
-                alert('旅館通報單已下載');
-            }).catch(err => {
-                console.error('PDF 產生失敗：', err);
-                wrapper.style.left = '-9999px';
-                wrapper.style.top = '-9999px';
-                wrapper.style.zIndex = '-9999';
-                wrapper.style.opacity = '0';
-                alert('PDF 導出時發生錯誤，請重試。');
-            });
-        }, 150); 
+        html2pdf().set(opt).from(element).save().then(() => {
+            alert('通報單已下載');
+        }).catch(err => {
+            console.error('PDF 產生失敗：', err);
+            alert('PDF 導出時發生錯誤，請重試。');
+        });
     });
 });
 </script>
