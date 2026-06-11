@@ -151,12 +151,12 @@
                                 <select class="form-select" id="casualtyCategory" required>
                                     <option value="">-- 請選擇傷亡對象 --</option>
                                     <option value="純屬虛驚/財損(無人員傷亡)">純屬虛驚/財損(無人員傷亡)</option>
-                                    <option value="本國籍住客- 受傷">本國籍住客 - 受傷</option>
-                                    <option value="本國籍住客- 死亡">本國籍住客 - 死亡</option>
-                                    <option value="外籍旅客- 受傷">外籍旅客 - 受傷</option>
-                                    <option value="外籍旅客- 死亡">外籍旅客 - 死亡</option>
-                                    <option value="旅館員工- 受傷">旅館員工 - 受傷</option>
-                                    <option value="旅館員工- 死亡">旅館員工 - 死亡</option>
+                                    <option value="本國籍住客-受傷">本國籍住客-受傷</option>
+                                    <option value="本國籍住客-死亡">本國籍住客-死亡</option>
+                                    <option value="外籍旅客-受傷">外籍旅客-受傷</option>
+                                    <option value="外籍旅客-死亡">外籍旅客-死亡</option>
+                                    <option value="旅館員工-受傷">旅館員工-受傷</option>
+                                    <option value="旅館員工-死亡">旅館員工-死亡</option>
                                     <option value="其他身分人員傷亡">其他身分人員傷亡</option>
                                 </select>
                             </div>
@@ -172,7 +172,7 @@
                                 <label class="form-label required">【10】通報警消醫護</label>
                                 <select class="form-select" id="policeFireStatus" required>
                                     <option value="">-- 請選擇 --</option>
-                                    <option value="已通報消防局/警察局/醫護">已通報消防局/警察局/醫護</option>
+                                    <option value="已通報消防/警察/醫護">已通報消防/警察/醫護</option>
                                     <option value="警/消/醫護人員現場處理中">警/消/醫護人員現場處理中</option>
                                     <option value="自行處置完成，評估無需通報警消醫護">狀況解除/自行處置完成，評估無需通報警消醫護</option>
                                 </select>
@@ -195,8 +195,8 @@
     </div>
 </div>
 
-<div id="pdf-template-wrapper">
-    <div id="pdf-content-node" style="width: 794px; height: 1120px; min-height: 1120px; max-height: 1120px; background: #ffffff; padding: 50px 55px; box-sizing: border-box; overflow: hidden;">
+<div id="word-template-wrapper">
+    <div id="word-content-node" style="width: 794px; height: 1120px; min-height: 1120px; max-height: 1120px; background: #ffffff; padding: 50px 55px; box-sizing: border-box; overflow: hidden;">
         </div>
 </div>
 
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td colspan="3" style="border: 2px solid #000000; padding: 11px 10px; font-size: 15px; color: #000000; font-weight: 500;">${policeFireStatus}</td>
                     </tr>
                     <tr>
-                        <td style="border: 2px solid #000000; padding: 11px 8px; background-color: #f7f7f7; text-align: center; font-size: 15px; font-weight: bold; color: #000000;">處理進度<br>(簡要說明)</td>
+                        <td style="border: 2px solid #000000; padding: 11px 8px; background-color: #f7f7f7; text-align: center; font-size: 15px; font-weight: bold; color: #000000;">處理進度<br></td>
                         <td colspan="3" style="border: 2px solid #000000; padding: 14px; height: 180px; min-height: 180px; vertical-align: top; font-size: 15px; line-height: 1.6; color: #000000; font-weight: 500; word-break: break-all;">${actionTaken.replace(/\n/g, '<br>')}</td>
                     </tr>
                 </table>
@@ -312,8 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // =========================================================================
-        // ==========================================================================
+        // =======================================================================
         const opt = {
             margin:       0, 
             filename:     `臺北市旅館通報單_${hotelName}_${district}.word`,
