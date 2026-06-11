@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臺北市旅館業緊急意外事故處理通報表 v5.2</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --gov-dark-blue: #1a365d;   /* 機關主色：深商務藍 */
+            --gov-light-blue: #f0f4f8;  /* 背景柔和藍 */
+            --gov-orange: #e65100;      /* 警示強調色：金橘色 */
+            --text-main: #2d3748;       /* 內文深灰 */
+        }
+        body { 
+            background-color: #f7fafc; 
+            font-family: 'Noto Sans TC', "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            color: var(--text-main);
+            padding: 20px 0 0 0; 
+        }
+        @media (min-width: 768px) {
+            body { padding: 40px 0 0 0; }
+        }
+        .card { 
+            border-radius: 16px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            border: 1px solid rgba(26, 54, 93, 0.08);
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+        .card-header { 
+            background: linear-gradient(135deg, var(--gov-dark-blue), #2b6cb0); 
+            color: white; 
+            border-bottom: none;
+            padding: 24px 20px;
+        }
+        .section-title {
+            color: var(--gov-dark-blue);
+            font-weight: 700;
+            border-left: 5px solid var(--gov-orange);
+            padding-left: 12px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        .form-label { font-weight: 500; color: #4a5568; font-size: 15px; }
+        .required::after { content: " *"; color: #e53e3e; font-weight: bold; }
+        .form-control, .form-select {
+            border-radius: 8px; border: 1px solid #cbd5e0; padding: 10px 14px; font-size: 15px;
+        }
+        /* 獨立時間按鈕 */
+        .time-locker-anchor {
+            display: block; text-align: center; background-color: #edf2f7; color: #2b6cb0;
+            border: 1px dashed #4299e1; padding: 10px; border-radius: 8px;
+            font-weight: bold; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.15s;
+        }
+        .time-locker-anchor:hover { background-color: #4299e1; color: white; border-style: solid; }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #dd6b20, var(--gov-orange)); color: white;
+            border: none; border-radius: 8px; padding: 14px 40px; font-weight: 700;
+            box-shadow: 0 4px 12px rgba(230, 81, 0, 0.2); cursor: pointer; transition: all 0.2s;
+        }
+        .btn-submit:hover { background: linear-gradient(135deg, var(--gov-orange), #c05621); }
+        .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
+        
+        /* ==========================================================================
+           核心優化：PDF 樣板容器
+           外層用一個透明且置頂的區塊包裹，內層固定 794px 寬度（標準 A4 寬度比例），
+           確保不論在任何尺寸的手機螢幕上擷取，都不會發生擠壓排版變形。
+           ========================================================================== */
+        #pdf-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+            z-index: -9999;
+            opacity: 0;
+        }
+        #pdf-template { 
+            width: 794px; /* A4 像素標準寬度 */
+            background: white; 
+            padding: 40px; 
+            color: black; 
+            box-sizing: border-box;
+        }
+        .pdf-title { text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 20px; font-family: "Noto Sans TC", "微軟正黑體", sans-serif; letter-spacing: 1px; }
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 15px; background: #ffffff; }
+        .pdf-table th, .pdf-table td { border: 1px solid #000000; padding: 12px; text-align: left; vertical-align: middle; box-sizing: border-box; }
+        .pdf-table th { background-color: #f2f2f2; font-weight: bold; width: 22%; text-align: center; }
+        .pdf-footer { font-size: 13px; line-height: 1.6; margin-top: 20px; border-top: 1px dashed #666; padding-top: 15px; color: #333; }
+    </style>
+</head>
+<body>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3 class="mb-1 fw-bold">臺北市旅館業緊急意外事故處理通報表</h3>
+                    <small>臺北市政府觀光傳播局</small>
+                </div>
+                <div class="card-body p-4 px-md-5">
+                    <form id="reportForm">
+                        
+                        <div class="section-title">一、填報單位</div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label required">【1】填報單位</label>
+                                <input type="text" class="form-control" id="hotelName" placeholder="請輸入完整旅館名稱" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label required">【2】所屬行政區</label>
+                                <select class="form-select" id="district" required>
+                                    <option value="">-- 請選擇專責行政區 --</option>
+                                    <option value="中正區">中正區</option>
+                                    <option value="信義區">信義區</option>
+                                    <option value="大安區">大安區</option>
+                                    <option value="北投區">北投區</option>
+                                    <option value="大同區">大同區</option>
+                                    <option value="萬華區">萬華區</option>
+                                    <option value="中山區">中山區</option>
+                                    <option value="松山區">松山區</option>
+                                    <option value="南港區">南港區</option>
+                                    <option value="內湖區">內湖區</option>
+                                    <option value="文山區">文山區</option>
+                                    <option value="士林區">士林區</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label required">【3】通報人員</label>
+                                <input type="text" class="form-control" id="reporterName" placeholder="填寫姓名" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label required">【4】職稱</label>
+                                <input type="text" class="form-control" id="reporterTitle" placeholder="例：值班經理、櫃台人員" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label required">【5】聯絡方式</label>
+                                <input type="text" class="form-control" id="reporterPhone" placeholder="填寫電話/手機" required>
+                            </div>
+                        </div>
+
+                        <div class="section-title">二、現場狀況</div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label required">【6】通報時間</label>
+                                <input type="datetime-local" class="form-control mb-2" id="eventTime" required>
+                                <div class="time-locker-anchor" id="lnkSetTime">點擊此處：鎖定目前時間</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label required">【7】事故地點</label>
+                                <input type="text" class="form-control" id="eventLocation" placeholder="例如：客房208、健身房、游泳池" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label required">【8】發生原因</label>
+                                <select class="form-select" id="eventReasonCategory" required>
+                                    <option value="">-- 請選擇事故核心主因 --</option>
+                                    <option value="火災災害（建築物火警）">火災災害（建築物火警）</option>
+                                    <option value="天然災害（地震導致毀損）">天然災害（地震導致毀損）</option>
+                                    <option value="天然災害（颱風/水災水淹）">天然災害（颱風/水災水淹）</option>
+                                    <option value="住客緊急傷病（心肌梗塞/突發疾病）">住客緊急傷病（心肌梗塞/突發疾病）</option>
+                                    <option value="住客案件（房間內發現猝死/身亡）">住客案件（房間內發現猝死/身亡）</option>
+                                    <option value="住客案件（意圖自殺/自傷事件）">住客案件（意圖自殺/自傷事件）</option>
+                                    <option value="重大治安（聚眾鬥毆/槍擊/砍人事件）">重大治安（聚眾鬥毆/槍擊事件）</option>
+                                    <option value="重大治安（毒品/開趴派對/刑事案件）">重大治安（毒品/刑事案件）</option>
+                                    <option value="公共衛生（集體食物中毒事件）">公共衛生（集體食物中毒事件）</option>
+                                    <option value="公共衛生（疑似群聚法定傳染病）">公共衛生（疑似群聚法定傳染病）</option>
+                                    <option value="硬體故障（電梯受困/大範圍停電）">硬體故障（電梯受困/大範圍停電）</option>
+                                    <option value="公共安全（一氧化碳/氣體外洩中毒）">公共安全（一氧化碳/氣體外洩中毒）</option>
+                                    <option value="其他突發緊急意外事故">其他突發緊急意外事故</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label required">原因與災情狀況補充</label>
+                                <input type="text" class="form-control" id="eventReasonRemark" placeholder="請針對上述分類補充(如有需要)" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label required">【9】傷亡情形</label>
+                                <select class="form-select" id="casualtyCategory" required>
+                                    <option value="">-- 請選擇傷亡對象分類 --</option>
+                                    <option value="純屬虛驚/財損（無人傷亡）">純屬虛驚/財損（無人員傷亡）</option>
+                                    <option value="本國籍住客-受傷">本國籍住客 - 受傷</option>
+                                    <option value="本國籍住客-死亡">本國籍住客 - 死亡</option>
+                                    <option value="外籍旅客-受傷">外籍旅客 - 受傷</option>
+                                    <option value="外籍旅客-死亡">外籍旅客 - 死亡</option>
+                                    <option value="旅館員工-受傷">旅館員工 - 受傷</option>
+                                    <option value="旅館員工-死亡">旅館員工 - 死亡</option>
+                                    <option value="其他身分人員傷亡">其他身分人員傷亡</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label required">詳細傷亡人數補充描述</label>
+                                <input type="text" class="form-control" id="casualtyCountDetail" placeholder="例：1人受傷送醫、無人死亡" required>
+                            </div>
+                        </div>
+
+                        <div class="section-title">三、處理情形</div>
+                        <div class="row g-3 mb-5">
+                            <div class="col-md-6">
+                                <label class="form-label required">【10】119/110 通報警消單位</label>
+                                <select class="form-select" id="policeFireStatus" required>
+                                    <option value="">-- 請選擇 --</option>
+                                    <option value="已通報消防局/警察局">已通報消防局/警察局</option>
+                                    <option value="消防局/警察局現場處理中">消防局/警察局現場處理中</option>
+                                    <option value="狀況已解除/自行處理，評估無需通報警消機關">狀況已控制，無需通報警消</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label required">【11】處理進度</label>
+                                <textarea class="form-control" id="actionTaken" rows="2" placeholder="請扼要說明：例如已疏散20人、已將傷者送往醫院等。" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <button type="submit" class="btn-submit w-100 fs-5 py-3">
+                                通報單下載 (PDF)
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="pdf-wrapper">
+    <div id="pdf-template">
+        <div class="pdf-title">臺北市旅館業緊急意外事故通報單</div>
+        <div style="text-align: right; margin-bottom: 12px; font-size: 14px; font-weight: 500;">
+            通報日期時間：<span id="pdfReportGeneratedTime"></span>
+        </div>
+        
+        <table class="pdf-table">
+            <tr>
+                <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 16px;">一、填報單位</th>
+            </tr>
+            <tr>
+                <th>旅館名稱</th>
+                <td id="pdfHotelName" style="width: 32%;"></td>
+                <th>所屬行政區</th>
+                <td id="pdfDistrict"></td>
+            </tr>
+            <tr>
+                <th>通報人員</th>
+                <td id="pdfReporterName"></td>
+                <th>職稱</th>
+                <td id="pdfReporterTitle"></td>
+            </tr>
+            <tr>
+                <th>聯絡方式</th>
+                <td colspan="3" id="pdfReporterPhone"></td>
+            </tr>
+            
+            <tr>
+                <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 16px;">二、現場狀況</th>
+            </tr>
+            <tr>
+                <th>通報時間</th>
+                <td id="pdfEventTime"></td>
+                <th>事故地點</th>
+                <td id="pdfEventLocation"></td>
+            </tr>
+            <tr>
+                <th>發生原因</th>
+                <td id="pdfEventReasonCategory"></td>
+                <th>原因與災情補充</th>
+                <td id="pdfEventReasonRemark"></td>
+            </tr>
+            <tr>
+                <th>傷亡情形</th>
+                <td id="pdfCasualtyCategory"></td>
+                <th>詳細傷亡人數描述</th>
+                <td id="pdfCasualtyCountDetail"></td>
+            </tr>
+            
+            <tr>
+                <th colspan="4" style="background-color: #d9d9d9; text-align: left; padding-left: 15px; font-size: 16px;">三、處理情形</th>
+            </tr>
+            <tr>
+                <th>通報警消單位</th>
+                <td colspan="3" id="pdfPoliceFireStatus"></td>
+            </tr>
+            <tr>
+                <th>處理進度</th>
+                <td colspan="3" id="pdfActionTaken" style="height: 120px; vertical-align: top;"></td>
+            </tr>
+        </table>
+        
+        <div class="pdf-footer">
+            <strong>主管機關提示說明：</strong><br>
+            1. 依據旅館業管理規則第25條規定，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
+            2. 請通報人務必確認填報內容真實無誤。
+        </div>
+    </div>
+</div>
+
+<footer class="gov-footer text-center">
+    <div class="container">
+        <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2 • 支援跨平台電腦與行動裝置導出</p>
+    </div>
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. 點擊鎖定目前時間功能 (優化跨系統相容性)
+    const lnkSetTime = document.getElementById('lnkSetTime');
+    const eventTimeInput = document.getElementById('eventTime');
+    
+    lnkSetTime.addEventListener('click', function() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        // 組合出 datetime-local 所需格式：YYYY-MM-DDTHH:mm
+        eventTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    });
+
+    // 2. 表單提交與 PDF 轉換邏輯
+    const reportForm = document.getElementById('reportForm');
+    
+    reportForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // 阻擋網頁重新整理
+        
+        // 讀取表單欄位數值
+        const hotelName = document.getElementById('hotelName').value;
+        const district = document.getElementById('district').value;
+        const reporterName = document.getElementById('reporterName').value;
+        const reporterTitle = document.getElementById('reporterTitle').value;
+        const reporterPhone = document.getElementById('reporterPhone').value;
+        const eventTime = document.getElementById('eventTime').value.replace('T', ' ');
+        const eventLocation = document.getElementById('eventLocation').value;
+        const eventReasonCategory = document.getElementById('eventReasonCategory').value;
+        const eventReasonRemark = document.getElementById('eventReasonRemark').value;
+        const casualtyCategory = document.getElementById('casualtyCategory').value;
+        const casualtyCountDetail = document.getElementById('casualtyCountDetail').value;
+        const policeFireStatus = document.getElementById('policeFireStatus').value;
+        const actionTaken = document.getElementById('actionTaken').value;
+
+        // 寫入公務 PDF 隱藏範本中
+        document.getElementById('pdfHotelName').textContent = hotelName;
+        document.getElementById('pdfDistrict').textContent = district;
+        document.getElementById('pdfReporterName').textContent = reporterName;
+        document.getElementById('pdfReporterTitle').textContent = reporterTitle;
+        document.getElementById('pdfReporterPhone').textContent = reporterPhone;
+        document.getElementById('pdfEventTime').textContent = eventTime;
+        document.getElementById('pdfEventLocation').textContent = eventLocation;
+        document.getElementById('pdfEventReasonCategory').textContent = eventReasonCategory;
+        document.getElementById('pdfEventReasonRemark').textContent = eventReasonRemark;
+        document.getElementById('pdfCasualtyCategory').textContent = casualtyCategory;
+        document.getElementById('pdfCasualtyCountDetail').textContent = casualtyCountDetail;
+        document.getElementById('pdfPoliceFireStatus').textContent = policeFireStatus;
+        document.getElementById('pdfActionTaken').textContent = actionTaken;
+        
+        // 生成當前系統通報時間
+        const currentNow = new Date();
+        document.getElementById('pdfReportGeneratedTime').textContent = currentNow.toLocaleString('zh-TW', { hour12: false });
+
+        // 調用 html2pdf.js 擷取特定 794px 的 A4 容器
+        const element = document.getElementById('pdf-template');
+        
+        const opt = {
+            margin:       10,
+            filename:     `臺北市旅館通報單_${hotelName}_${district}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                letterRendering: true,
+                scrollY: 0,
+                scrollX: 0
+            },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // 執行下載
+        html2pdf().set(opt).from(element).save().then(() => {
+            alert('🎉 通報成功！通報單 (PDF) 已成功產生並下載至您的裝置。');
+        }).catch(err => {
+            console.error('PDF 產生失敗：', err);
+            alert('PDF 導出時發生錯誤，請重試。若在手機 App 內置瀏覽器中無法下載，請複製網址改由系統內建瀏覽器(Safari/Chrome)開啟。');
+        });
+    });
+});
+</script>
+
+</body>
+</html>
