@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 執行下載
         html2pdf().set(opt).from(element).save().then(() => {
-            alert('通報單 PDF 已成功產製並下載！');
+            alert('通報單已下載！');
         }).catch(err => {
             console.error('PDF 產生失敗：', err);
             alert('PDF 導出時發生錯誤，請重新調整表單後再試。');
