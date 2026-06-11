@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.4</title>
+    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.5</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -66,16 +66,16 @@
         .btn-submit:hover { background: linear-gradient(135deg, var(--gov-orange), #c05621); }
         .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
         
-        /* PDF 隱藏容器配置 */
+        /* PDF 隱藏容器配置 (修正：初始使用不干擾排版的透明度與位置處理) */
         #pdf-wrapper {
             position: fixed;
-            left: 0;
-            top: 0;
+            left: -9999px;
+            top: -9999px;
             width: 794px;
             height: 1123px;
             overflow: hidden;
             z-index: -9999;
-            visibility: hidden;
+            opacity: 0;
         }
         #pdf-template { 
             width: 794px; 
@@ -179,7 +179,6 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <!-- 修正點：移除必填標籤與 required 屬性 -->
                                 <label class="form-label">原因與災情狀況補充 (選填)</label>
                                 <input type="text" class="form-control" id="eventReasonRemark" placeholder="請針對上述分類補充（若無則免填）">
                             </div>
@@ -310,7 +309,7 @@
 <footer class="gov-footer text-center">
     <div class="container">
         <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
-        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.4 • 開放選填欄位</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.5 • 修復導出空白問題</p>
     </div>
 </footer>
 
@@ -336,6 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
     reportForm.addEventListener('submit', function(e) {
         e.preventDefault(); 
         
+        // 1. 讀取表單資料
         const hotelName = document.getElementById('hotelName').value;
         const district = document.getElementById('district').value;
         const reporterName = document.getElementById('reporterName').value;
@@ -344,13 +344,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const eventTime = document.getElementById('eventTime').value.replace('T', ' ');
         const eventLocation = document.getElementById('eventLocation').value;
         const eventReasonCategory = document.getElementById('eventReasonCategory').value;
-        // 允許空值，若沒填寫則顯示空白或您可以自行設定如 "無"
-        const eventReasonRemark = document.getElementById('eventReasonRemark').value || ""; 
+        const eventReasonRemark = document.getElementById('eventReasonRemark').value || "（未填寫）"; 
         const casualtyCategory = document.getElementById('casualtyCategory').value;
         const casualtyCountDetail = document.getElementById('casualtyCountDetail').value;
         const policeFireStatus = document.getElementById('policeFireStatus').value;
         const actionTaken = document.getElementById('actionTaken').value;
 
+        // 2. 寫入 PDF 模板容器
         document.getElementById('pdfHotelName').textContent = hotelName;
         document.getElementById('pdfDistrict').textContent = district;
         document.getElementById('pdfReporterName').textContent = reporterName;
@@ -368,9 +368,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentNow = new Date();
         document.getElementById('pdfReportGeneratedTime').textContent = currentNow.toLocaleString('zh-TW', { hour12: false });
 
+        // 3. 將隱藏區移入可見視野，供 html2pdf 擷取
         const wrapper = document.getElementById('pdf-wrapper');
-        wrapper.style.visibility = 'visible';
+        wrapper.style.left = '0px';
+        wrapper.style.top = '0px';
         wrapper.style.zIndex = '9999';
+        wrapper.style.opacity = '1';
 
         const element = document.getElementById('pdf-template');
         
@@ -392,16 +395,24 @@ document.addEventListener('DOMContentLoaded', function() {
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().set(opt).from(element).save().then(() => {
-            wrapper.style.visibility = 'hidden';
-            wrapper.style.zIndex = '-9999';
-            alert('旅館通報單已下載');
-        }).catch(err => {
-            console.error('PDF 產生失敗：', err);
-            wrapper.style.visibility = 'hidden';
-            wrapper.style.zIndex = '-9999';
-            alert('PDF 導出時發生錯誤，請重試。');
-        });
+        // 修正核心：延遲 150 毫秒執行，確保資料與樣式已完全渲染進去
+        setTimeout(() => {
+            html2pdf().set(opt).from(element).save().then(() => {
+                // 恢復原先的隱藏定位
+                wrapper.style.left = '-9999px';
+                wrapper.style.top = '-9999px';
+                wrapper.style.zIndex = '-9999';
+                wrapper.style.opacity = '0';
+                alert('旅館通報單已下載');
+            }).catch(err => {
+                console.error('PDF 產生失敗：', err);
+                wrapper.style.left = '-9999px';
+                wrapper.style.top = '-9999px';
+                wrapper.style.zIndex = '-9999';
+                wrapper.style.opacity = '0';
+                alert('PDF 導出時發生錯誤，請重試。');
+            });
+        }, 150); 
     });
 });
 </script>
