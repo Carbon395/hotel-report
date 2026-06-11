@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>臺北市旅館業緊急意外事故處理通報表 v5.2</title>
+    <title>臺北市旅館業緊急意外事故處理通報表 v5.2.1</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -57,7 +57,7 @@
             font-weight: bold; font-size: 15px; text-decoration: none; cursor: pointer; transition: all 0.15s;
         }
         .time-locker-anchor:hover { background-color: #4299e1; color: white; border-style: solid; }
-        
+         
         .btn-submit {
             background: linear-gradient(135deg, #dd6b20, var(--gov-orange)); color: white;
             border: none; border-radius: 8px; padding: 14px 40px; font-weight: 700;
@@ -67,32 +67,32 @@
         .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
         
         /* ==========================================================================
-           核心優化：PDF 樣板容器
-           外層用一個透明且置頂的區塊包裹，內層固定 794px 寬度（標準 A4 寬度比例），
-           確保不論在任何尺寸的手機螢幕上擷取，都不會發生擠壓排版變形。
+           核心優化：PDF 完美單頁不裁切容器配置
            ========================================================================== */
         #pdf-wrapper {
             position: absolute;
-            left: 0;
-            top: 0;
-            width: 0;
-            height: 0;
+            left: -9999px;
+            top: -9999px;
+            width: 794px;
+            height: 1123px;
             overflow: hidden;
             z-index: -9999;
             opacity: 0;
         }
         #pdf-template { 
-            width: 794px; /* A4 像素標準寬度 */
+            width: 794px; 
+            height: 1123px;
             background: white; 
-            padding: 40px; 
+            padding: 50px 45px; 
             color: black; 
             box-sizing: border-box;
+            position: relative;
         }
-        .pdf-title { text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 20px; font-family: "Noto Sans TC", "微軟正黑體", sans-serif; letter-spacing: 1px; }
-        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 15px; background: #ffffff; }
-        .pdf-table th, .pdf-table td { border: 1px solid #000000; padding: 12px; text-align: left; vertical-align: middle; box-sizing: border-box; }
+        .pdf-title { text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 25px; font-family: "Noto Sans TC", "微軟正黑體", sans-serif; letter-spacing: 1px; }
+        .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 15px; background: #ffffff; table-layout: fixed; }
+        .pdf-table th, .pdf-table td { border: 1px solid #000000; padding: 10px 12px; text-align: left; vertical-align: middle; box-sizing: border-box; word-wrap: break-word; }
         .pdf-table th { background-color: #f2f2f2; font-weight: bold; width: 22%; text-align: center; }
-        .pdf-footer { font-size: 13px; line-height: 1.6; margin-top: 20px; border-top: 1px dashed #666; padding-top: 15px; color: #333; }
+        .pdf-footer { font-size: 13px; line-height: 1.6; margin-top: 30px; border-top: 1px dashed #666; padding-top: 15px; color: #333; }
     </style>
 </head>
 <body>
@@ -244,9 +244,9 @@
             </tr>
             <tr>
                 <th>旅館名稱</th>
-                <td id="pdfHotelName" style="width: 32%;"></td>
+                <td id="pdfHotelName" style="width: 28%;"></td>
                 <th>所屬行政區</th>
-                <td id="pdfDistrict"></td>
+                <td id="pdfDistrict" style="width: 28%;"></td>
             </tr>
             <tr>
                 <th>通報人員</th>
@@ -290,12 +290,12 @@
             </tr>
             <tr>
                 <th>處理進度</th>
-                <td colspan="3" id="pdfActionTaken" style="height: 120px; vertical-align: top;"></td>
+                <td colspan="3" id="pdfActionTaken" style="height: 140px; vertical-align: top;"></td>
             </tr>
         </table>
         
         <div class="pdf-footer">
-            <strong>主管機關提示說明：</strong><br>
+            <strong>提示說明：</strong><br>
             1. 依據旅館業管理規則第25條規定，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
             2. 請通報人務必確認填報內容真實無誤。
         </div>
@@ -305,14 +305,14 @@
 <footer class="gov-footer text-center">
     <div class="container">
         <p class="mb-1">臺北市政府觀光傳播局 版權所有</p>
-        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2 • 支援跨平台電腦與行動裝置導出</p>
+        <p class="mb-0 text-muted" style="font-size: 12px;">系統版本 v5.2.1 • 支援跨平台電腦與行動裝置導出</p>
     </div>
 </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
-    // 1. 點擊鎖定目前時間功能 (優化跨系統相容性)
+    // 1. 點擊鎖定目前時間功能
     const lnkSetTime = document.getElementById('lnkSetTime');
     const eventTimeInput = document.getElementById('eventTime');
     
@@ -324,7 +324,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         
-        // 組合出 datetime-local 所需格式：YYYY-MM-DDTHH:mm
         eventTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
     });
 
@@ -332,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const reportForm = document.getElementById('reportForm');
     
     reportForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // 阻擋網頁重新整理
+        e.preventDefault(); 
         
         // 讀取表單欄位數值
         const hotelName = document.getElementById('hotelName').value;
@@ -368,11 +367,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentNow = new Date();
         document.getElementById('pdfReportGeneratedTime').textContent = currentNow.toLocaleString('zh-TW', { hour12: false });
 
-        // 調用 html2pdf.js 擷取特定 794px 的 A4 容器
+        // 調用 html2pdf.js 擷取
         const element = document.getElementById('pdf-template');
         
         const opt = {
-            margin:       10,
+            margin:       0, // 將邊距設為0，改由網頁內的 padding 完美控制
             filename:     `臺北市旅館通報單_${hotelName}_${district}.pdf`,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { 
@@ -380,17 +379,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 useCORS: true, 
                 letterRendering: true,
                 scrollY: 0,
-                scrollX: 0
+                scrollX: 0,
+                width: 794,       // 強制畫布鎖定 A4 寬度
+                windowWidth: 794  // 強制 RWD 解析度在此視窗寬度下渲染，避免手機端排版擠壓
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         // 執行下載
         html2pdf().set(opt).from(element).save().then(() => {
-            alert('🎉 通報成功！通報單 (PDF) 已成功產生並下載至您的裝置。');
+            alert('🎉 通報成功！通報單已下載');
         }).catch(err => {
             console.error('PDF 產生失敗：', err);
-            alert('PDF 導出時發生錯誤，請重試。若在手機 App 內置瀏覽器中無法下載，請複製網址改由系統內建瀏覽器(Safari/Chrome)開啟。');
+            alert('PDF 導出時發生錯誤，請重試。');
         });
     });
 });
