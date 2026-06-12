@@ -160,15 +160,15 @@
                                     <option value="純屬虛驚/財損(無人員傷亡)">純屬虛驚/財損(無人員傷亡)</option>
                                     <option value="本國籍住客 - 受傷">本國籍住客 - 受傷</option>
                                     <option value="本國籍住客 - 死亡">本國籍住客 - 死亡</option>
-                                    <option value="外籍旅客 - 受傷">外籍旅客 - 受傷</option>
-                                    <option value="外籍旅客 - 死亡">外籍旅客 - 死亡</option>
+                                    <option value="外國籍住客 - 受傷">外國籍住客 - 受傷</option>
+                                    <option value="外國籍住客 - 死亡">外國籍住客 - 死亡</option>
                                     <option value="旅館員工 - 受傷">旅館員工 - 受傷</option>
                                     <option value="旅館員工 - 死亡">旅館員工 - 死亡</option>
                                     <option value="其他身分人員傷亡">其他身分人員傷亡</option>
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label required">詳細傷亡描述</label>
+                                <label class="form-label required">傷亡補充說明</label>
                                 <input type="text" class="form-control" id="casualtyCountDetail" placeholder="例：1人死亡 / 1人送醫救治" required>
                             </div>
                         </div>
@@ -288,13 +288,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     <tr>
                         <td style="border: 2px solid #000000; padding: 11px 8px; background-color: #f7f7f7; text-align: center; font-size: 15px; font-weight: bold; color: #000000;">發生原因</td>
                         <td style="border: 2px solid #000000; padding: 11px 10px; font-size: 15px; color: #000000; font-weight: 500;">${eventReasonCategory}</td>
-                        <td style="border: 2px solid #000000; padding: 11px 8px; background-color: #f7f7f7; text-align: center; font-size: 15px; font-weight: bold; color: #000000;">原因與災情補充</td>
+                        <td style="border: 2px solid #000000; padding: 11px 8px; background-color: #f7f7f7; text-align: center; font-size: 15px; font-weight: bold; color: #000000;">傷亡說明補充</td>
                         <td style="border: 2px solid #000000; padding: 11px 10px; font-size: 15px; color: #000000; font-weight: 500; word-break: break-all;">${eventReasonRemark}</td>
                     </tr>
                     <tr>
                         <td style="border: 2px solid #000000; padding: 11px 8px; background-color: #f7f7f7; text-align: center; font-size: 15px; font-weight: bold; color: #000000;">傷亡情形</td>
                         <td style="border: 2px solid #000000; padding: 11px 10px; font-size: 15px; color: #000000; font-weight: 500;">${casualtyCategory}</td>
-                        <td style="border: 2px solid #000000; padding: 11px 8px; background-color: #f7f7f7; text-align: center; font-size: 15px; font-weight: bold; color: #000000;">詳細傷亡描述</td>
+                        <td style="border: 2px solid #000000; padding: 11px 8px; background-color: #f7f7f7; text-align: center; font-size: 15px; font-weight: bold; color: #000000;">傷亡補充說明</td>
                         <td style="border: 2px solid #000000; padding: 11px 10px; font-size: 15px; color: #000000; font-weight: 500; word-break: break-all;">${casualtyCountDetail}</td>
                     </tr>
                     
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div style="font-size: 13px; margin-top: 20px; border-top: 1.5px dashed #000000; padding-top: 12px; line-height: 1.6; color: #333333;">
                     <strong>提示說明：</strong><br>
                     1. 依旅館業管理規則第25條，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，旅館應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
-                    2. 請通報人務必確認填報內容真實無誤。
+                    2. 通報人員務必確認填報內容真實無誤，並將通報單提供臺北市政府觀光傳播局。
                 </div>
             </div>
         `;
