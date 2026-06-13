@@ -57,7 +57,7 @@
         #printTemplate { display: none; }
 
         /* ==========================================================================
-           ⚡ 終極救星：列印樣式覆寫 (當使用者點擊列印另存 PDF 時，強制切換排版)
+           ⚡ 終極救星：樣式覆寫 (當使用者點擊下方產製通報單時，強制切換排版)
            ========================================================================== */
         @media print {
             /* 1. 隱藏原本畫面上複雜的 UI、表單、頁尾 */
@@ -80,7 +80,7 @@
             <div class="card">
                 <div class="card-header text-center">
                     <h3 class="mb-1 fw-bold">臺北市旅館緊急意外事故處理通報表</h3>
-                    <small>填寫完成後，點擊下方按鈕即可直接另存為 PDF</small>
+                    <small>填寫完成後，點擊下方產製通報單按鈕即可直接另存為 PDF</small>
                 </div>
                 <div class="card-body p-4 px-md-5">
                     <form id="reportForm">
@@ -180,7 +180,7 @@
                         <div class="section-title">三、處理情形</div>
                         <div class="row g-3 mb-5">
                             <div class="col-md-6">
-                                <label class="form-label required">【10】通報警消單位</label>
+                                <label class="form-label required">【10】通報警消醫護單位</label>
                                 <select class="form-select" id="policeFireStatus" required>
                                     <option value="">-- 請選擇 --</option>
                                     <option value="已通報消防局/警察局/醫療救護單位處理中">已通報消防局/警察局/醫療救護</option>
@@ -196,7 +196,7 @@
 
                         <div class="text-center mb-3">
                             <button type="submit" class="btn-submit w-100 fs-4 py-3">
-                                產製通報單 (開啟列印視窗)
+                                產製通報單
                             </button>
                         </div>
                     </form>
@@ -322,8 +322,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // ⚡ 直接呼叫系統列印（此時 CSS @media print 觸發，畫面自動只剩下完美表格）
-        window.print();
+        // ⚡ 直接呼叫系統另存（此時 CSS @media save 觸發，畫面自動只剩下完美表格）
+        window.save();
     });
 });
 </script>
