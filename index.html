@@ -85,16 +85,16 @@
                 <div class="card-body p-4 px-md-5">
                     <form id="reportForm">
                         
-                        <div class="section-title">一、填報單位</div>
+                        <div class="section-title">一、通報單位</div>
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label required">【1】填報單位</label>
+                                <label class="form-label required">【1】通報旅館</label>
                                 <input type="text" class="form-control" id="hotelName" placeholder="請輸入旅館名稱" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label required">【2】所屬行政區</label>
                                 <select class="form-select" id="district" required>
-                                    <option value="">-- 請選擇專責行政區 --</option>
+                                    <option value="">-- 請選擇旅館行政區 --</option>
                                     <option value="中正區">中正區</option>
                                     <option value="信義區">信義區</option>
                                     <option value="大安區">大安區</option>
@@ -136,7 +136,7 @@
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label required">【8】發生原因</label>
+                                <label class="form-label required">【8】事故原因</label>
                                 <select class="form-select" id="eventReasonCategory" required>
                                     <option value="">-- 請選擇事故核心原因 --</option>
                                     <option value="住客案件(自殺/自傷)">住客案件(自殺/自傷)</option>
@@ -153,14 +153,14 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">事故原因補充</label>
+                                <label class="form-label">事故補充說明</label>
                                 <input type="text" class="form-control" id="eventReasonRemark" placeholder="補充說明">
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label required">【9】傷亡情形</label>
                                 <select class="form-select" id="casualtyCategory" required>
-                                    <option value="">-- 請選擇傷亡對象分類 --</option>
+                                    <option value="">-- 請選擇傷亡對象 --</option>
                                     <option value="純屬虛驚(無人員傷亡)">純屬虛驚(無人員傷亡)</option>
                                     <option value="本國籍住客 - 受傷">本國籍住客 - 受傷</option>
                                     <option value="本國籍住客 - 死亡">本國籍住客 - 死亡</option>
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 <table style="width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000000; background: #ffffff;">
                     <tr>
-                        <td colspan="4" style="border: 1.5px solid #000000; padding: 10px; background-color: #f2f2f2; text-align: left; font-size: 14px; font-weight: bold; color: #000000;">一、填報單位</td>
+                        <td colspan="4" style="border: 1.5px solid #000000; padding: 10px; background-color: #f2f2f2; text-align: left; font-size: 14px; font-weight: bold; color: #000000;">一、通報單位</td>
                     </tr>
                     <tr>
                         <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; width: 20%; font-size: 13px; font-weight: bold;">旅館名稱</td>
@@ -289,9 +289,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${eventLocation}</td>
                     </tr>
                     <tr>
-                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">發生原因</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">事故原因</td>
                         <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px;">${eventReasonCategory}</td>
-                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">原因補充說明</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">事故補充說明</td>
                         <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${eventReasonRemark}</td>
                     </tr>
                     <tr>
