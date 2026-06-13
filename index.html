@@ -7,9 +7,6 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    
     <style>
         :root {
             --gov-dark-blue: #1a365d;   
@@ -55,6 +52,24 @@
         }
         .btn-submit:hover { background: linear-gradient(135deg, var(--gov-orange), #c05621); }
         .gov-footer { background-color: #2d3748; color: #a0aec0; padding: 24px 0; font-size: 13px; margin-top: 60px; border-top: 4px solid var(--gov-orange); }
+
+        /* 🚀 隱藏預覽專用的區塊，平常不顯示 */
+        #printTemplate { display: none; }
+
+        /* ==========================================================================
+           ⚡ 終極救星：列印樣式覆寫 (當使用者點擊列印另存 PDF 時，強制切換排版)
+           ========================================================================== */
+        @media print {
+            /* 1. 隱藏原本畫面上複雜的 UI、表單、頁尾 */
+            body { background: #ffffff !important; padding: 0 !important; margin: 0 !important; }
+            .container, footer, .card, #reportForm { display: none !important; }
+            
+            /* 2. 讓隱藏的標準公務表格現形 */
+            #printTemplate { display: block !important; }
+            
+            /* 3. 強制瀏覽器不要幫我們加預設頁首頁尾（消除網址與日期） */
+            @page { margin: 1.5cm; }
+        }
     </style>
 </head>
 <body>
@@ -65,7 +80,7 @@
             <div class="card">
                 <div class="card-header text-center">
                     <h3 class="mb-1 fw-bold">臺北市旅館緊急意外事故處理通報表</h3>
-                    <small>填寫完成後點擊按鈕，將在背景自動下載 PDF 檔案儲存</small>
+                    <small>填寫完成後，點擊下方按鈕即可直接另存為 PDF</small>
                 </div>
                 <div class="card-body p-4 px-md-5">
                     <form id="reportForm">
@@ -125,7 +140,7 @@
                                 <select class="form-select" id="eventReasonCategory" required>
                                     <option value="">-- 請選擇事故核心原因 --</option>
                                     <option value="住客案件(自殺/自傷)">住客案件(自殺/自傷)</option>
-                                    <option value="住客案件(意外傷亡)">住客案件(意外傷亡)</option>
+                                    <option value="住客案件(房內意外傷亡)">住客案件(房內意外傷亡)</option>
                                     <option value="火災災害(建築物火警)">火災災害(建築物火警)</option>
                                     <option value="重大治安(暴力/槍擊/傷害)">重大治安(暴力/槍擊/傷害)</option>
                                     <option value="重大治安(毒品)">重大治安(毒品)</option>
@@ -181,7 +196,7 @@
 
                         <div class="text-center mb-3">
                             <button type="submit" class="btn-submit w-100 fs-4 py-3">
-                                直接儲存 PDF 檔案
+                                產製通報單 (開啟列印視窗)
                             </button>
                         </div>
                     </form>
@@ -197,6 +212,8 @@
     </div>
 </footer>
 
+<div id="printTemplate"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     
@@ -210,12 +227,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 表單提交事件
+    // 表單送出
     const reportForm = document.getElementById('reportForm');
     reportForm.addEventListener('submit', function(e) {
         e.preventDefault(); 
         
-        // 1. 抓取表單資料
+        // 抓取表單資料
         const hotelName = document.getElementById('hotelName').value;
         const district = document.getElementById('district').value;
         const reporterName = document.getElementById('reporterName').value;
@@ -233,83 +250,80 @@ document.addEventListener('DOMContentLoaded', function() {
         const now = new Date();
         const generatedTime = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 
-        // 2. 初始化 jsPDF 向量物件
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'pt', 'a4');
+        // 填寫到列印模板內
+        const printTemplate = document.getElementById('printTemplate');
+        printTemplate.innerHTML = `
+            <div style="font-family: 'Noto Sans TC', Arial, sans-serif; color: #000000; background: #ffffff; width: 100%; max-width: 680px; margin: 0 auto; line-height: 1.5;">
+                <div style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #1a365d; letter-spacing: 1px;">臺北市旅館緊急意外事故通報單</div>
+                <div style="text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 20px; color: #4a5568; letter-spacing: 2px;">臺北市政府觀光傳播局</div>
+                <div style="text-align: right; font-size: 12px; margin-bottom: 5px; font-weight: bold; color: #000000;">通報日期時間: ${generatedTime}</div>
 
-        // ⚡ 核心科技：內嵌微型正體中文字型 (確保公務系統在無網路環境、任何瀏覽器下100%絕不變亂碼或空白)
-        // 使用系統預設支援的常用標準向量標楷/明體映射，並啟用自動中文字型編碼
-        doc.addFont("https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.8/pdfobject.min.js", "NotoSansTC", "normal");
-        
-        // 3. 繪製公務抬頭
-        doc.setFontSize(22);
-        doc.setTextColor(26, 54, 93); // 觀傳局深藍色
-        doc.text("臺北市旅館緊急意外事故通報單", 297, 50, { align: 'center' });
-        
-        doc.setFontSize(13);
-        doc.setTextColor(74, 85, 104);
-        doc.text("臺北市政府觀光傳播局", 297, 72, { align: 'center' });
-        
-        doc.setFontSize(10);
-        doc.setTextColor(0, 0, 0);
-        doc.text(`通報日期時間: ${generatedTime}`, 535, 95, { align: 'right' });
+                <table style="width: 100%; border-collapse: collapse; table-layout: fixed; border: 2px solid #000000; background: #ffffff;">
+                    <tr>
+                        <td colspan="4" style="border: 1.5px solid #000000; padding: 10px; background-color: #f2f2f2; text-align: left; font-size: 14px; font-weight: bold; color: #000000;">一、填報單位</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; width: 20%; font-size: 13px; font-weight: bold;">旅館名稱</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; width: 30%; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${hotelName}</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; width: 20%; font-size: 13px; font-weight: bold;">所屬行政區</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; width: 30%; font-size: 13px;">${district}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">通報人員</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${reporterName}</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">職稱</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${reporterTitle}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">聯絡方式</td>
+                        <td colspan="3" style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${reporterPhone}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="4" style="border: 1.5px solid #000000; padding: 10px; background-color: #f2f2f2; text-align: left; font-size: 14px; font-weight: bold; color: #000000;">二、現場狀況</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">通報時間</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px;">${eventTime}</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">事故地點</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${eventLocation}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">發生原因</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px;">${eventReasonCategory}</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">原因補充說明</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${eventReasonRemark}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">傷亡情形</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px;">${casualtyCategory}</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">傷亡補充說明</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${casualtyCountDetail}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td colspan="4" style="border: 1.5px solid #000000; padding: 10px; background-color: #f2f2f2; text-align: left; font-size: 14px; font-weight: bold; color: #000000;">三、處理情形</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">通報警消單位</td>
+                        <td colspan="3" style="border: 1.5px solid #000000; padding: 10px; font-size: 13px;">${policeFireStatus}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">處理進度<br>(簡要說明)</td>
+                        <td colspan="3" style="border: 1.5px solid #000000; padding: 12px; height: 220px; vertical-align: top; font-size: 13px; line-height: 1.6; color: #000000; word-wrap: break-word; white-space: pre-wrap;">${actionTaken}</td>
+                    </tr>
+                </table>
 
-        // 4. 使用 autoTable 在背景直接繪製無死角黑線公務表單 (100% 有內容)
-        doc.autoTable({
-            startY: 105,
-            theme: 'plain',
-            styles: { 
-                font: 'Helvetica', // 預設使用標準對應
-                fontSize: 11, 
-                cellPadding: 8, 
-                lineColor: [0, 0, 0], 
-                lineWidth: 1,
-                textColor: [0, 0, 0],
-                valign: 'middle'
-            },
-            columnStyles: {
-                0: { cellWidth: 90, halign: 'center', fillColor: [250, 250, 250], fontStyle: 'bold' },
-                1: { cellWidth: 160 },
-                2: { cellWidth: 90, halign: 'center', fillColor: [250, 250, 250], fontStyle: 'bold' },
-                3: { cellWidth: 165 }
-            },
-            body: [
-                // 一、填報單位
-                [{ content: '一、填報單位', colspan: 4, styles: { fillColor: [242, 242, 242], fontStyle: 'bold', fontSize: 12 } }],
-                ['旅館名稱', hotelName, '所屬行政區', district],
-                ['通報人員', reporterName, '職稱', reporterTitle],
-                ['聯絡方式', { content: reporterPhone, colspan: 3 }],
-                
-                // 二、現場狀況
-                [{ content: '二、現場狀況', colspan: 4, styles: { fillColor: [242, 242, 242], fontStyle: 'bold', fontSize: 12 } }],
-                ['通報時間', eventTime, '事故地點', eventLocation],
-                ['發生原因', eventReasonCategory, '原因補充說明', eventReasonRemark],
-                ['傷亡情形', casualtyCategory, '傷亡補充說明', casualtyCountDetail],
-                
-                // 三、處理情形
-                [{ content: '三、處理情形', colspan: 4, styles: { fillColor: [242, 242, 242], fontStyle: 'bold', fontSize: 12 } }],
-                ['通報警消單位', { content: policeFireStatus, colspan: 3 }],
-                ['處理進度\n(簡要說明)', { content: actionTaken, colspan: 3, styles: { height: 160, valign: 'top' } }]
-            ],
-            // 當前台環境多國語系異常時，強制進行字型底層防禦修正
-            didDrawCell: function(data) {
-                // 自動保持邊框與字型在 A4 範圍之內
-            }
-        });
+                <div style="font-size: 11px; margin-top: 20px; border-top: 1px dashed #cbd5e0; padding-top: 10px; line-height: 1.5; color: #4a5568;">
+                    <strong>提示說明：</strong><br>
+                    1. 依旅館業管理規則第25條，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，旅館應即通報有關單位、疏散旅客，並協助傷患就醫。<br>
+                    2. 通報人員務必確認填報內容真實無誤，並將通報單提供臺北市政府觀光傳播局。
+                </div>
+            </div>
+        `;
 
-        // 5. 加上底部提示語
-        const finalY = doc.lastAutoTable.finalY + 20;
-        doc.setFontSize(9);
-        doc.setTextColor(74, 85, 104);
-        doc.text("提示說明：", 40, finalY);
-        doc.text("1. 依旅館業管理規則第25條，遇有火災、天然災害或緊急事故發生，對住宿旅客生命、身體有重大危害時，", 40, finalY + 15);
-        doc.text("   旅館應即通報有關單位、疏散旅客，並協助傷患就醫。", 40, finalY + 28);
-        doc.text("2. 通報人員務必確認填報內容真實無誤，並將通報單提供臺北市政府觀光傳播局。", 40, finalY + 43);
-
-        // 6. ⚡ 終極直接儲存：完全背景運作，直接觸發下載，不跳出任何列印或預覽視窗！
-        doc.save(`臺北市旅館通報單_旅館名稱(行政區)_${hotelName}_${district}.pdf`);
-        
-        alert('PDF 通報單已成功在背景建立並直接下載儲存！');
+        // ⚡ 直接呼叫系統列印（此時 CSS @media print 觸發，畫面自動只剩下完美表格）
+        window.print();
     });
 });
 </script>
