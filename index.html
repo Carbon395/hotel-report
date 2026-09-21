@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -9,9 +9,9 @@
     
     <style>
         :root {
-            --gov-dark-blue: #1a365d;   
+            --gov-dark-blue: #1a365d;    
             --gov-orange: #e65100;      
-            --text-main: #2d3748;       
+            --text-main: #2d3748;        
         }
         body { 
             background-color: #f7fafc; 
@@ -45,6 +45,52 @@
         }
         .time-locker-anchor:hover { background-color: #4299e1; color: white; border-style: solid; }
         
+        /* 隱藏式複選下拉選單自訂樣式 */
+        .custom-dropdown { position: relative; }
+        .dropdown-toggle-box {
+            background-color: #fff; border: 1px solid #cbd5e0; border-radius: 8px;
+            padding: 10px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            font-size: 15px; color: #2d3748; min-height: 48px;
+        }
+        .dropdown-toggle-box:hover { border-color: #a0aec0; }
+        .dropdown-menu-panel {
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 1000;
+            background: #fff; border: 1px solid #cbd5e0; border-radius: 8px;
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1); margin-top: 4px; padding: 12px;
+            display: none; max-height: 350px; overflow-y: auto;
+        }
+        .dropdown-menu-panel.show { display: block; }
+
+        /* 選項調整至 22px，文字在前、圓框在後 */
+        .casualty-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+        .casualty-item:hover {
+            background-color: #f7fafc;
+        }
+        .casualty-item label {
+            cursor: pointer;
+            font-size: 22px; /* 字體設為 22px */
+            color: #2d3748;
+            margin-bottom: 0;
+            flex-grow: 1;
+            font-weight: 500;
+        }
+        .casualty-checkbox {
+            width: 1.35em;
+            height: 1.35em;
+            border-radius: 50% !important;
+            cursor: pointer;
+            margin-left: 14px;
+            flex-shrink: 0;
+        }
+
         .btn-submit {
             background: linear-gradient(135deg, #dd6b20, var(--gov-orange)); color: white;
             border: none; border-radius: 8px; padding: 14px 40px; font-weight: 700;
@@ -57,17 +103,12 @@
         #printTemplate { display: none; }
 
         /* ==========================================================================
-           ⚡ 終極救星：列印樣式覆寫 (當使用者點擊列印另存 PDF 時，強制切換排版)
-           ========================================================================== */
+            ⚡ 終極救星：列印樣式覆寫 (當使用者點擊列印另存 PDF 時，強制切換排版)
+            ========================================================================== */
         @media print {
-            /* 1. 隱藏原本畫面上複雜的 UI、表單、頁尾 */
             body { background: #ffffff !important; padding: 0 !important; margin: 0 !important; }
             .container, footer, .card, #reportForm { display: none !important; }
-            
-            /* 2. 讓隱藏的標準公務表格現形 */
             #printTemplate { display: block !important; }
-            
-            /* 3. 強制瀏覽器不要幫我們加預設頁首頁尾（消除網址與日期） */
             @page { margin: 1.5cm; }
         }
     </style>
@@ -157,21 +198,52 @@
                                 <input type="text" class="form-control" id="eventReasonRemark" placeholder="補充說明">
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label required">【9】傷亡情形</label>
-                                <select class="form-select" id="casualtyCategory" required>
-                                    <option value="">-- 請選擇傷亡對象 --</option>
-                                    <option value="無人員傷亡">無人員傷亡</option>
-                                    <option value="本國籍住客 - 受傷">本國籍住客 - 受傷</option>
-                                    <option value="本國籍住客 - 死亡">本國籍住客 - 死亡</option>
-                                    <option value="外國籍住客 - 受傷">外國籍住客 - 受傷</option>
-                                    <option value="外國籍住客 - 死亡">外國籍住客 - 死亡</option>
-                                    <option value="旅館員工 - 受傷">旅館員工 - 受傷</option>
-                                    <option value="旅館員工 - 死亡">旅館員工 - 死亡</option>
-                                    <option value="其他身分人員傷亡">其他身分人員傷亡</option>
-                                </select>
+                            <div class="col-12">
+                                <label class="form-label required">【9】傷亡情形（點擊展開多選）</label>
+                                <div class="custom-dropdown" id="casualtyDropdown">
+                                    <div class="dropdown-toggle-box" id="dropdownToggleBtn">
+                                        <span id="dropdownSelectedText" class="text-muted">-- 請點擊選擇傷亡情形（可複選） --</span>
+                                        <span>▼</span>
+                                    </div>
+                                    <div class="dropdown-menu-panel" id="dropdownPanel">
+                                        <div class="casualty-item">
+                                            <label for="c1">無人員傷亡</label>
+                                            <input class="form-check-input casualty-checkbox" type="checkbox" value="無人員傷亡" id="c1">
+                                        </div>
+                                        <div class="casualty-item">
+                                            <label for="c2">本國籍住客 - 受傷</label>
+                                            <input class="form-check-input casualty-checkbox" type="checkbox" value="本國籍住客 - 受傷" id="c2">
+                                        </div>
+                                        <div class="casualty-item">
+                                            <label for="c3">本國籍住客 - 死亡</label>
+                                            <input class="form-check-input casualty-checkbox" type="checkbox" value="本國籍住客 - 死亡" id="c3">
+                                        </div>
+                                        <div class="casualty-item">
+                                            <label for="c4">外國籍住客 - 受傷</label>
+                                            <input class="form-check-input casualty-checkbox" type="checkbox" value="外國籍住客 - 受傷" id="c4">
+                                        </div>
+                                        <div class="casualty-item">
+                                            <label for="c5">外國籍住客 - 死亡</label>
+                                            <input class="form-check-input casualty-checkbox" type="checkbox" value="外國籍住客 - 死亡" id="c5">
+                                        </div>
+                                        <div class="casualty-item">
+                                            <label for="c6">旅館員工 - 受傷</label>
+                                            <input class="form-check-input casualty-checkbox" type="checkbox" value="旅館員工 - 受傷" id="c6">
+                                        </div>
+                                        <div class="casualty-item">
+                                            <label for="c7">旅館員工 - 死亡</label>
+                                            <input class="form-check-input casualty-checkbox" type="checkbox" value="旅館員工 - 死亡" id="c7">
+                                        </div>
+                                        <div class="casualty-item">
+                                            <label for="c8">其他身分人員傷亡</label>
+                                            <input class="form-check-input casualty-checkbox" type="checkbox" value="其他身分人員傷亡" id="c8">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 隱藏欄位用於觸發 HTML5 必填檢核 -->
+                                <input type="text" id="casualtyValidationHelper" required style="opacity: 0; position: absolute; pointer-events: none; height: 1px; width: 1px;">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <label class="form-label required">傷亡補充說明</label>
                                 <input type="text" class="form-control" id="casualtyCountDetail" placeholder="例：1人死亡 / 1人送醫救治" required>
                             </div>
@@ -227,6 +299,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // 隱藏式複選下拉選單互動邏輯
+    const toggleBtn = document.getElementById('dropdownToggleBtn');
+    const panel = document.getElementById('dropdownPanel');
+    const selectedText = document.getElementById('dropdownSelectedText');
+    const checkboxes = document.querySelectorAll('.casualty-checkbox');
+    const validationHelper = document.getElementById('casualtyValidationHelper');
+
+    // 點擊按鈕展開/收合選單
+    toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        panel.classList.toggle('show');
+    });
+
+    // 點擊畫面其他地方自動收合選單
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('casualtyDropdown').contains(e.target)) {
+            panel.classList.remove('show');
+        }
+    });
+
+    // 監聽勾選狀態變更，即時更新按鈕文字與驗證輔助欄位
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            const checkedItems = [];
+            checkboxes.forEach(item => {
+                if(item.checked) checkedItems.push(item.value);
+            });
+
+            if(checkedItems.length > 0) {
+                selectedText.textContent = checkedItems.join('、');
+                selectedText.classList.remove('text-muted');
+                validationHelper.value = "selected"; // 滿足 required
+            } else {
+                selectedText.textContent = '-- 請點擊選擇傷亡情形（可複選） --';
+                selectedText.classList.add('text-muted');
+                validationHelper.value = ""; // 觸發 required 阻擋
+            }
+        });
+    });
+
     // 表單送出
     const reportForm = document.getElementById('reportForm');
     reportForm.addEventListener('submit', function(e) {
@@ -242,7 +354,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const eventLocation = document.getElementById('eventLocation').value;
         const eventReasonCategory = document.getElementById('eventReasonCategory').value;
         const eventReasonRemark = document.getElementById('eventReasonRemark').value || "（無）"; 
-        const casualtyCategory = document.getElementById('casualtyCategory').value;
+        
+        // 抓取複選的傷亡情形
+        const selectedCasualties = [];
+        checkboxes.forEach(cb => {
+            if(cb.checked) selectedCasualties.push(cb.value);
+        });
+        const casualtyCategory = selectedCasualties.length > 0 ? selectedCasualties.join('、') : '未勾選';
+
         const casualtyCountDetail = document.getElementById('casualtyCountDetail').value;
         const policeFireStatus = document.getElementById('policeFireStatus').value;
         const actionTaken = document.getElementById('actionTaken').value;
@@ -296,9 +415,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     </tr>
                     <tr>
                         <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">傷亡情形</td>
-                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px;">${casualtyCategory}</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;" colspan="3">${casualtyCategory}</td>
+                    </tr>
+                    <tr>
                         <td style="border: 1.5px solid #000000; padding: 10px; background-color: #fafafa; text-align: center; font-size: 13px; font-weight: bold;">傷亡補充說明</td>
-                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;">${casualtyCountDetail}</td>
+                        <td style="border: 1.5px solid #000000; padding: 10px; font-size: 13px; word-wrap: break-word; overflow-wrap: break-word;" colspan="3">${casualtyCountDetail}</td>
                     </tr>
                     
                     <tr>
@@ -322,7 +443,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
 
-        // ⚡ 直接呼叫系統列印（此時 CSS @media print 觸發，畫面自動只剩下完美表格）
         window.print();
     });
 });
